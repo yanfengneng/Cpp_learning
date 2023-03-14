@@ -64,7 +64,9 @@ void test_cout_size()
 }
 ```
 
+****
 
+3）<font color=blue>不带缓冲：即不进行缓冲。</font>典型代表是标准出错 stderr，这使得出错信息可以直接尽快地显示出来。
 
 参考文章：[c++ 中缓冲区的理解](https://blog.csdn.net/mxgsgtc/article/details/15500109)、[缓冲区刷新在 C++ 中意味着什么？](https://juejin.cn/post/7031455528723152927)、[C++中关于输入cin的一些总结](https://www.cnblogs.com/mini-coconut/p/9041925.html)、[C++学习之：cout和cin用法](https://segmentfault.com/a/1190000023902592)、[C++ cin 详解之终极无惑](https://blog.csdn.net/K346K346/article/details/48213811)
 
