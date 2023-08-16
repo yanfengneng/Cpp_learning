@@ -1,4 +1,4 @@
-#include "myMath.h"
+#include "./CMake/math/myMath.h"
 
 int add(int a, int b)
 {

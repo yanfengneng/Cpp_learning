@@ -9,7 +9,7 @@ project (CMake_Test)
 aux_source_directory(. DIR_SRCS)
 
 # 添加 math 子目录
-add_subdirectory(./math)
+add_subdirectory(math)
 
 # 指定生成目标 
 add_executable(demo main.cpp)
