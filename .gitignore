@@ -2,3 +2,6 @@
 .vscode/
 */.idea
 C++_Primer_5th/
+CMake/*
+CplusplusQuickGuide/*
+build/
