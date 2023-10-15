@@ -1,0 +1,63 @@
+// 以下为 windows 编译 c/c++ 的配置文件
+// {
+
+//     "console": "none",
+//     "code-runner.ignoreSelection": true,
+//     "code-runner.runInTerminal": true,
+//     "code-runner.preserveFocus": false,
+//     "code-runner.saveFileBeforeRun": true,
+//     "C_Cpp.updateChannel": "Insiders",
+//     "terminal.integrated.profiles.windows": {
+//         "PowerShell": {
+//             "path": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+//             "args": [
+//                 "-NoExit", "/c", "chcp 65001"
+//             ],
+//             /*
+//             /K chcp 65001或-NoExit", "/c", "chcp 65001的含义是在运终端时候将编码设置为65001
+//             */
+//         },
+//     },
+//     "terminal.integrated.defaultProfile.windows": "PowerShell",
+//     "terminal.integrated.fontFamily": "Lucida Console",
+//     "files.autoSave": "afterDelay",
+//     "editor.fontSize": 14,
+//     "C_Cpp.default.intelliSenseMode": "gcc-x64",
+//     "C_Cpp.default.cppStandard": "c++17",//支持c++17标准
+//     "C_Cpp.default.cStandard": "c11",//支持c11标准
+//     "files.encoding": "gb2312",//以中文的方式打开文件
+//     "files.associations": {
+//         "iostream": "cpp",
+//         "vector": "cpp",
+//         "ostream": "cpp",
+//         "new": "cpp",
+//         "*.tcc": "cpp",
+//         "deque": "cpp",
+//         "list": "cpp",
+//         "string": "cpp",
+//         "unordered_map": "cpp",
+//         "unordered_set": "cpp",
+//         "functional": "cpp",
+//         "initializer_list": "cpp",
+//         "xhash": "cpp",
+//         "xstring": "cpp",
+//         "xtree": "cpp",
+//         "xutility": "cpp",
+//         "xlocale": "cpp",
+//         "bitset": "cpp",
+//         "queue": "cpp",
+//         "stack": "cpp",
+//         "type_traits": "cpp"
+//     },
+//     "C_Cpp.errorSquiggles": "Disabled",
+//     "cmake.sourceDirectory": "/home/yfn/code/Cpp_learning/CMake",
+//     "cmake.configureOnOpen": false
+// }
+
+// 以下为 ubuntu下的 c/c++ 配置文件
+{
+    "C_Cpp.errorSquiggles": "disabled",
+    "files.associations": {
+        "cerrno": "cpp"
+    }
+}

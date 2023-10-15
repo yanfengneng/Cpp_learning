@@ -1,0 +1,83 @@
+// {
+//     "version": "2.0.0",
+//     "command": "g++",// 要使用的编译器，c语言就是gcc，c++就是g++
+//     "args": [
+//         "-g",
+//         "${file}",
+//         "-o",// 指定输出文件名，不加该参数则默认输出a.exe，Linux下默认a.out
+//         "${fileDirname}/${fileBasenameNoExtension}.exe",
+//         "-std=c++11", // 语言标准，可根据自己的需要进行修改，写c++要换成c++的语言标准，比如c++11.14.17
+//         "-std=c++14", 
+//         "-std=c++17",
+//         "-finput-charset=GBK",// 设置编译出的可执行程序中的字符是 GBK 编码
+//     ],
+//     "problemMatcher": {
+//         "owner": "cpp",
+//         "fileLocation": [
+//             "relative",
+//             "${workspaceRoot}"
+//         ],
+//         "pattern": {
+//             "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+//             "file": 1,
+//             "line": 2,
+//             "column": 3,
+//             "severity": 4,
+//             "message": 5
+//         }
+//     },
+//     "group": {
+//         "kind": "build",
+//         "isDefault": true //设为false可做到一个tasks.json配置多个编译指令，需要自己修改本文件，我这里不多提
+//     },
+//     "presentation": {// 执行这个任务时的一些其他设定
+//                 "echo": true,//表示在执行任务时在终端要有输出
+//                 "reveal": "always",//执行任务时是否跳转到终端面板，可以为always，silent，never
+//                 "focus": false,//设为true后可以使执行task时焦点聚集在终端，但对编译来说，设为true没有意义，因为运行的时候才涉及到输入
+//                 //"panel": "new"//每次执行这个task时都新建一个终端面板，也可以设置为shared，共用一个面板，不过那样会出现‘任务将被终端重用’的提示，比较烦人
+//                 "panel": "new"
+//     },
+// }
+
+// 以下为 ubuntu 下的配置文件
+{
+    "version": "2.0.0",
+    "tasks": [{
+            "label": "build",// 与 launch.json 中的 label 要一样才能运行
+            "command": "g++",// 要使用的编译器，c语言就是gcc，c++就是g++
+            // 多文件编译需要加上这行代码。因此统一下，不管是单文件还是多文件都加上这行代码。
+            "type": "shell",// 任务类型：shell相当于先打开shell再输入命令，所以args还会经过shell再解析一遍
+            "args": [
+                "-g", //生成和调试有关的信息
+                "${file}",
+                "-o",// 指定输出文件名，不加该参数则默认输出a.exe，Linux下默认a.out
+                "${fileDirname}/${fileBasenameNoExtension}.out",
+                "-std=c++11", // 语言标准，可根据自己的需要进行修改，写c++要换成c++的语言标准，比如c++11.14.17
+                "-std=c++14", 
+                "-std=c++17",
+                //"-lpthread" // 加入多线程编译选项，可删除
+            ],
+            "problemMatcher": {
+                "owner": "cpp",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceRoot}"
+                ],
+                // 以下为报错信息的配置
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "severity": 4,
+                    "message": 5
+                }
+            },
+            //group表示‘组’，我们可以有很多的task，然后把他们放在一个‘组’里
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
