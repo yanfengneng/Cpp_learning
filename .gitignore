@@ -2,4 +2,6 @@
 *.out
 */.idea
 C++_Primer_5th/
-CplusplusQuickGuide/
+CplusplusQuickGuide/*
+*build/
+CMake/*
