@@ -1,6 +1,7 @@
 - [1. Cpp疑难点记录](#1-cpp疑难点记录)
 - [2. Cpp Primer 5th 笔记记录](#2-cpp-primer-5th-笔记记录)
 - [3. STL 总结笔记](#3-stl-总结笔记)
+- [4. CMake 学习笔记](#4-cmake-学习笔记)
 
 
 # 1. [Cpp疑难点记录](Cpp_Primer/Cpp%E7%96%91%E9%9A%BE%E7%82%B9%E8%AE%B0%E5%BD%95.md)
@@ -22,3 +23,6 @@
 ***
 # 3. STL 总结笔记
 （未开始，待做。。。
+
+# 4. CMake 学习笔记
+[CMake 笔记总结](CMake/cmake笔记.md)
