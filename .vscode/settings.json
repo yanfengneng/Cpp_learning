@@ -58,7 +58,8 @@
 {
     "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
-        "cerrno": "cpp"
+        "cerrno": "cpp",
+        "iostream": "cpp"
     },
     "cmake.configureOnOpen": false
 }
