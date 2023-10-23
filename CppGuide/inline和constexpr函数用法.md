@@ -2,6 +2,9 @@
 - [二、constexpr 函数](#二constexpr-函数)
 	- [2.1 使用方法](#21-使用方法)
 	- [2.2 注意事项](#22-注意事项)
+- [三、constexpr 和常量表达式](#三constexpr-和常量表达式)
+	- [3.1 constexpr 变量](#31-constexpr-变量)
+	- [3.2 字面值类型](#32-字面值类型)
 
 # 一、inline 函数
 
@@ -99,3 +102,63 @@ constexpr int myFunc(int i)
 }
 ```
 
+# 三、constexpr 和常量表达式
+
+**常量表达式**：是指**值不会改变**且**在编译过程中就能够得到计算结果**的表达式，能在**编译时求值**的表达式。
+
+```cpp
+#include <iostream>
+using namespace std;
+ 
+int main()
+{
+	
+	const int a1 = 10;           // a1是常量表达式。
+ 
+	const int a2 = a1 + 20;      // a2是常量表达式
+
+    // 尽管a3的初始值是一个字面值常量，但是它的数据类型只是一个普通的 int 类型而不非 const int，因为它不属于一个常量表达式。
+	int a3 = 5;                  // a3不是常量表达式
+ 	
+    // 虽然a4本身是一个常量，但是它的具体值知道运行时才能被获取到，所以也不是常量表达式。
+	const int a4 = a3;           // a4不是常量表达式，因为a3程序的执行到达其所在的声明处时才初始化，所以变量a4的值程序运行时才知道。但编译没问题！
+ 
+	return 0;
+}
+```
+
+<font color=red>以上代码说明了：const 声明的变量不一定是常量表达式。</font>
+
+## 3.1 constexpr 变量
+
+参考：
+
+* [C++知识整理系列（三）—— constexpr常量表达式](https://blog.csdn.net/aruewds/article/details/118938121)
+* [C++常量表达式、const、constexpr(C++11新增)的区别](https://blog.csdn.net/a3192048/article/details/81430421)
+
+C++11新标准规定，**允许将变量声明为 constexpr 类型以便由编译器来验证变量的值是否是常量表达式**。`constexpr` 指定符声明可以在**编译时**求得函数或变量的值，<font color=blue>声明为constexpr 的变量一定是一个常量，而且必须用常量表达式来进行初始化。</font>
+
+```cpp
+#include <iostream>
+using namespace std;
+ 
+int main()
+{
+	
+	constexpr int a1 = 10;           // a1是常量表达式
+ 
+	constexpr int a2 = a1 + 20;      // a2是常量表达式
+ 
+	int a3 = 5;                  // a3不是常量表达式
+ 
+	constexpr int a4 = a3;           // a4不是常量表达式，因为a3程序的执行到达其所在的声明处时才初始化，所以变量a4的值程序运行时才知道。编译报错！
+ 
+	return 0;
+}
+```
+
+## 3.2 字面值类型
+
+**字面值类型有**：算术类型、引用和指针都属于字面值类型。<font color=blue>对于 constexpr 指针的初始值必须是 nullptr 或者 0，或者是存储于某个固定地址中的对象。</font>
+
+<font color=alice>自定义类、IO 库、string 类型则都不属于字面值类型，也就不能被定义成 constexpr。</font>
