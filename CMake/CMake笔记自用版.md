@@ -113,7 +113,7 @@ add_executable(${PROJECT_NAME} ${DIR_SRCS})
 
 ## 2.2 源文件在子目录，main.cpp 在主目录
 
-![image-20231112191811709](E:/image/md_image/image-20231112191811709.png)
+![image-20231112191811709](Image/CMakeLists目录结构2.png)
 
 主目录下的 CMakeLists.txt 编写如下：
 
