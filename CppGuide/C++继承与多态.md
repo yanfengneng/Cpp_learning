@@ -578,8 +578,6 @@ Derived::Derived(const Derived& v) : Base(v){...}
 
 
 
-# 二、多重继承
-
 参考：[C++继承和派生](https://blog.csdn.net/weixin_45220863/article/details/125848676)、[C++总结（四）——继承与派生](https://blog.csdn.net/qq_43516875/article/details/129941180)、[C++ 继承(基类与派生类)详解附代码](https://blog.csdn.net/yn_zi/article/details/130039618)
 
 
