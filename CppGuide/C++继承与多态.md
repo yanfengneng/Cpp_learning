@@ -1,6 +1,19 @@
-- [一、继承](#一继承)
+- [一、单一继承](#一单一继承)
   - [1.1 继承相关定义概述](#11-继承相关定义概述)
-- [二、多态性](#二多态性)
+  - [1.2 类的继承方式](#12-类的继承方式)
+    - [改变访问权限](#改变访问权限)
+      - [using 关键字改变权限](#using-关键字改变权限)
+      - [继承中的遮蔽问题](#继承中的遮蔽问题)
+      - [使用指针改变权限](#使用指针改变权限)
+  - [1.3 派生类的构造函数和析构函数](#13-派生类的构造函数和析构函数)
+      - [派生类的构造函数](#派生类的构造函数)
+      - [派生类的析构函数](#派生类的析构函数)
+      - [派生类的拷贝构造函数](#派生类的拷贝构造函数)
+  - [1.4 同名隐藏](#14-同名隐藏)
+    - [补充：函数重载、函数覆盖、函数隐藏之间的定义与区别](#补充函数重载函数覆盖函数隐藏之间的定义与区别)
+  - [1.5 类型兼容规则](#15-类型兼容规则)
+- [三、多态性](#三多态性)
+
 
 
 https://blog.csdn.net/weixin_43793960/article/details/106322147
@@ -68,6 +81,53 @@ https://blog.csdn.net/weixin_43793960/article/details/106322147
 * 1）**所有数据成员，包括 static 静态数据成员变量**；
 * 2）**除了基类的构造函数、析构函数之外的所有成员函数方法**；
 * 3）**继承了基类的作用域，但是没有继承友元关系**；
+
+### 补充：继承与静态成员之间的关系
+
+
+
+### 补充下：友元不会被继承
+
+在C++中，**友元关系不会被继承**。也就是说，派生类不会自动获得基类的友元关系。将基类看做父类，派生类看做子类，可以理解为：你父亲的朋友不是你的朋友。
+
+虽然友元关系不会被继承，但是**可以在派生类中重新声明一下友元关系**。
+
+```cpp
+#include <iostream>
+using namespace std;
+ 
+class Student;
+class Person
+{
+public:
+    friend void Print(const Person& p, const Student& s);
+    string _name;// 姓名
+};
+ 
+class Student :public Person
+{
+    // 由于友元关系不能被继承，因此需要在派生类中重新声明一下友元关系。若不声明则会报错
+    friend void Print(const Person& p, const Student& s);
+protected:
+    int _stuNum;// 学号
+};
+ 
+void Print(const Person& p, const Student& s)
+{
+    cout << p._name << endl;
+    cout << s._stuNum << endl; //在派生类中声明过后，就会编译通过
+}
+ 
+int main()
+{
+    Person p;
+    Student s;
+    Print(p, s);
+    return 0;
+}
+```
+
+
 
 ***
 
@@ -570,15 +630,255 @@ Derived::Derived(const Derived& v) : Base(v){...}
 
 ## 1.4 同名隐藏
 
+在派生类中，如果定义了与基类同名的成员变量或成员函数，那么该成员会屏蔽基类中同名的成员。这种情况下，在派生类内部访问同名成员时，实际上是访问派生类自己的成员。
 
+```cpp
+#include <iostream>
+using namespace std;
+ 
+class Person
+{
+protected:
+    string _name = "张三";
+    int _age = 18;
+    int _num = 10;
+};
+ 
+class Student :public Person
+{
+public:
+    void Print()
+    {
+        cout << _num << endl;//默认访问的是Student中的_num
+        cout << Person::_num<<endl;//可以指定访问Persong中的_num
+    }
+protected:
+    int _num = 20;
+};
+ 
+int main()
+{
+    Student s;
+    s.Print();
+    return 0;
+}
+```
+
+总结下：
+
+* 1）在继承体系中基类和派生类都有独立的作用域，因此当派生类中也定义了与基类相同的_num 时，不会报错。
+
+* 2）**基类与派生类中有同名成员时，派生类成员将屏蔽基类对同名成员的直接访问**，这种情况叫隐蔽，也叫重定义。
+
+* 3）对于成员函数来说，**只需要函数名相同就构成隐蔽/重定义**。
+
+* 4）虽然有隐蔽，但我们仍然可以指定访问父类中的成员(如上述例子中的Person::_num)，实际中我们**应该尽量避免在派生类中定义与基类相同的成员名，即要避免隐蔽/重定义**。
+
+* 5）一定要区分开函数重载与函数重定义，**前者发生在同一作用域，后者发生在不同作用域**。
+
+
+
+### 补充：函数重载、函数覆盖、函数隐藏之间的定义与区别
+
+参考：[重载、重写（覆盖）、隐藏的定义与区别](https://blog.csdn.net/weixin_39640298/article/details/88725073)
+
+**函数重载：指的是在同一作用域中，同名函数的参数个数、类型不同时，构成函数重载。**
+
+```cpp
+class A
+{
+public:
+	int 	func(int a);
+	void 	func(int a, int b);
+	void 	func(int a, int b, int c);    	
+	int 	func(char* pstr, int a);
+};
+```
+
+以上四个函数构成重载函数，需要注意的是：
+
+* 1）**函数返回值类型与构成重载函数无任何关系。**
+* 2）类的静态成员函数与普通的类的成员函数之间可以形成重载关系。
+* 3）函数重载发生在同一作用域中，如类成员函数之间的重载、全局函数之间的重载。
+
+比较出名的是**运算符重载**，此外还需要注意下**const 重载**：
+
+```cpp
+class D
+{
+public:
+	void funcA();				// 1
+	void funcA() const;			// 2
+	void funcB(int a);			// 报错
+	void funcB(const int a);	// 报错
+};
+```
+
+在类D 中 funcA 与 const funcA 是合法的重载，**而两个 funcB 函数是非法的，不能通过编译**。解释如下：
+
+* **原因**：在类中，由于隐含的this形参的存在，const 版本的 function 使得作为形参的this指针的类型变为指向 const 对象的指针，而非 const 版本的使得作为形参的this指针就是正常版本的指针。此处是发生重载的本质。
+* **调用规则：const对象默认调用const成员函数，非const对象默认调用非const成员函数**。
+* 对于 funcB，**使用非引用传参，形参是否 const 是等价的，因此这里发生了混淆**。但是当使用引用传参时，有无 const 是不同的。使用指针传参时，指向 cons t对象的指针和指向非 const 对象的指针做形参的函数是不同的。
+
+***
+
+**函数隐藏：指不同作用域中定义的同名函数构成隐藏**。<font color=blue>只关心名字是否相同（相同就进行隐藏），而不要求参数类型和函数返回值相同。</font>比如：派生类成员函数隐藏与其同名的基类成员函数、类成员函数隐藏全局外部函数。
+
+隐藏的实质是：**在函数查找时，名字查找先于类型检查**。如果派生类中成员和基类中的成员同名，就隐藏掉基类的同名函数。**编译器首先在相应作用域中查找函数，如果找到名字一样的则停止查找**。
+
+```cpp
+void hidefunc(const char* pstr)
+{
+	cout << "global function: " << pstr << endl;
+}
+
+class HideA
+{
+public:
+	void hidefunc()
+	{
+		cout << "HideA function" << endl;
+	}
+
+	void usehidefunc()
+	{
+		// 隐藏外部函数hidefunc，使用外部函数时要加作用域
+		hidefunc();
+		::hidefunc("lvlv");
+	}
+};
+
+class HideB : public HideA
+{
+public:
+	void hidefunc()
+	{
+		cout << "HideB function" << endl;
+	}
+
+	void usehidefunc()
+	{
+		// 隐藏基类函数hidefunc，使用外部函数时要加作用域
+		hidefunc();
+		HideA::hidefunc();
+	}
+};
+```
+
+***
+
+**函数覆盖/重写(override)**：指的是派生类中与基类**同返回值类型、同名和同参数的虚函数重定义**，构成虚函数覆盖，也叫虚函数重写.
+
+存在一个特殊的情况：协变返回类型。定义是：**如果虚函数返回指针或者引用时（不包括value语义），子类中重写的函数返回的指针或者引用是父类中被重写函数所返回指针或引用的子类型**。
+
+```cpp
+class Base
+{
+public:
+    virtual A& show()
+    {
+        cout<<"In Base"<<endl;
+        return *(new A);
+    }
+};
+
+class Derived : public Base
+{
+public:
+     // 返回值协变，构成虚函数重写
+     B& show()
+     {
+        cout<<"In Derived"<<endl;
+        return *(new B);
+    }
+};
+```
+
+对比覆盖和隐藏，不难发现**函数覆盖其实是函数隐藏的特例**。<font color=blue>如果派生类中定义了一个**与基类虚函数同名但是参数列表不同的非 virtual 函数**，则此函数是一个普通成员函数，并形成对基类中同名虚函数的隐藏，而非虚函数覆盖。</font>
+
+**隐藏是一个静态概念，它代表了标识符之间的一种屏蔽现象，而覆盖则是为了实现动态联编，是一个动态概念**。
+
+***
+
+**final 和 override 说明符：**
+
+通过之前的学习可以得知：派生类可以定义一个函数与基类中虚函数的名字相同但是形参列表不同的函数（隐藏）。编译器将认为新定义的这个函数与基类中原有的函数是相互独立的。
+
+但是在写虚函数时，想让派生类中的虚函数覆盖掉基类虚函数，有时我们可能会写错（形参列表不同），造成了隐藏，这不是并不是我们想要的的结果。所以**C++ 11新标准中可以使用override关键字来说明派生类中的虚函数**。
+
+```cpp
+class B
+{
+	virtual void f1( int ) const;
+	virtual void f2();
+	void f3();
+};
+class C : public B
+{
+	void f1( int ) const override;	// 正确，f1与基类中的f1匹配
+	void f2( int ) override;		// 错误：B 没有形如f2（int）的函数
+	void f3() override;				// 错误：f3 不是虚函数
+	void f4() override;				// 错误：B 中没有名为 f4 的函数
+};
+```
+
+使用关键字 override 是希望覆盖掉基类中的虚函数，若不符合则编译器会报错。
+
+**final 关键字：**
+
+* 1）把某个函数指定为 **final** ，意味着任何尝试覆盖该函数的操作都将引发错误。
+* 2）**final 和 override 说明符出现在形参列表以及尾置返回类型之后**。
+* 3）final 还可以跟在类的后面，意思这个类不能当做其它类的基类，即这个类作为最终类。
+
+```cpp
+class B
+{
+	virtual void f1( int ) const;
+	virtual void f2();
+	void f3();
+};
+
+class D : public B
+{
+	// 从 B 继承 f2() 和 f3()，覆盖 f1( int )
+	void f1( int ) const final; // 不允许后续的其它类覆盖 f1（int）
+};
+class E : public D
+{
+	void f2();				// 正确：覆盖从间接类B继承而来的f2
+	void f1( int ) const;	// 错误：D已经将 f2 声明成 final
+};
+```
+
+***
+
+**总结：**
+
+* 1）**函数重载发生在相同的作用域**。
+* 2）**函数隐藏发生在不同的作用域**。
+* 3）**函数覆盖就是函数重写**。准确地来说叫做虚函数覆盖和虚函数重写，也是函数隐藏的特例。
+
+![image-20231206213153766](Image/函数重载、隐藏、重写的区别.png)
 
 ## 1.5 类型兼容规则
 
 参考：[赋值兼容规则，拷贝构造函数、赋值语句在继承时的关系](https://blog.csdn.net/weixin_45732685/article/details/113931907)
 
+在C++中，**派生类对象可以赋值给基类的对象/基类的指针/基类的引用**。这是因为由于派生类继承了基类的成员，所以派生类对象在内存中的布局与基类对象是兼容的，可以直接进行类型转换。
+
+具体地说，将一个派生类对象赋值给基类对象时，编译器会自动调用从基类继承的构造函数，将派生类对象的基类部分复制到基类对象中，而忽略掉派生类独有的成员。这样就可以通过基类对象来访问派生类继承的成员了。
+
+上述这种赋值行为也被叫做切片，即切去派生类中属于派生类的独有部分，而将属于基类的部分赋值给基类对象。
+
+注意一点，**除非基类的指针指向派生类对象，否则基类对象不能给派生类对象赋值**。
+
 
 
 参考：[C++继承和派生](https://blog.csdn.net/weixin_45220863/article/details/125848676)、[C++总结（四）——继承与派生](https://blog.csdn.net/qq_43516875/article/details/129941180)、[C++ 继承(基类与派生类)详解附代码](https://blog.csdn.net/yn_zi/article/details/130039618)
+
+
+
+## 1.6 多重继承
 
 
 
