@@ -1,3 +1,20 @@
+- [一、const 的作用](#一const-的作用)
+- [二、const 修饰基本数据类型](#二const-修饰基本数据类型)
+  - [2.1 const 修饰常见数据类型](#21-const-修饰常见数据类型)
+  - [2.2 const 修饰指针](#22-const-修饰指针)
+    - [2.2.1 常量指针（const  int\* p、int const \*p）](#221-常量指针const--int-pint-const-p)
+    - [2.2.2 指针常量（int\* const p）](#222-指针常量int-const-p)
+    - [2.2.3 指向常量的指针常量（const int\* const p）](#223-指向常量的指针常量const-int-const-p)
+  - [2.3 const 修饰函数](#23-const-修饰函数)
+    - [2.3.1 const 修饰函数参数](#231-const-修饰函数参数)
+    - [2.3.2 const 修饰函数返回值](#232-const-修饰函数返回值)
+  - [2.4 const 在类中](#24-const-在类中)
+    - [2.4.1 const 成员变量](#241-const-成员变量)
+    - [2.4.2 const 成员函数](#242-const-成员函数)
+    - [2.4.3 const 修饰类对象](#243-const-修饰类对象)
+    - [2.4.4 const 修饰类成员返回值](#244-const-修饰类成员返回值)
+  - [2.5 类中定义常量的用法](#25-类中定义常量的用法)
+
 参考：
 
 [C/C++const关键字详解](https://blog.csdn.net/weixin_44049823/article/details/128735316)
