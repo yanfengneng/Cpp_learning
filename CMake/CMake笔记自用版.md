@@ -1,8 +1,15 @@
+- [一、常用命令](#一常用命令)
+  - [1.1 常用命令解释](#11-常用命令解释)
+  - [1.2 常见的 CMake 变量](#12-常见的-cmake-变量)
+- [二、实例](#二实例)
+  - [2.1 所有源文件都在同一个目录下](#21-所有源文件都在同一个目录下)
+  - [2.2 源文件在子目录，main.cpp 在主目录](#22-源文件在子目录maincpp-在主目录)
+
 # 一、常用命令
 
 参考：[CMakeLists.txt的超傻瓜手把手教程（附实例源码）](https://blog.csdn.net/qq_38410730/article/details/102477162)
 
-# 1.1 常用命令解释 
+## 1.1 常用命令解释 
 
 这里主要记录一些自己记不太情况的命令含义，一些常见的就不记录了。
 
@@ -70,7 +77,7 @@ target_link_libraries(库文件名称/可执行文件名称（这里需要填生
 
 
 
-# 1.2 常见的 CMake 变量
+## 1.2 常见的 CMake 变量
 
 参考：[[CMake教程] 使用变量](https://blog.csdn.net/maizousidemao/article/details/104096417)、[cmake 常用变量、常用环境变量、常用语法总结](https://blog.csdn.net/bytxl/article/details/50634868)
 
