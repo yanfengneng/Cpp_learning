@@ -17,7 +17,7 @@
 6.  [C++继承与多态](CppGuide/06C++继承与多态.md)
 7.  [const关键字总结](CppGuide/07const关键字总结.md)
 8.  [IO总结](CppGuide/08IO总结.md)
-9.  [C++重载函数](CppGuide/09C++重载函数.md)
+9.  [C++重载函数](CppGuide/09重载运算符.md)
 
 # 02. 编译工具
 1. [CMake笔记](CMake/CMake笔记自用版.md) 
