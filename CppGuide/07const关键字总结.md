@@ -236,7 +236,7 @@ public:
 
 **const 函数的规则**：
 
-* 1）**const 对象只能访问 const 成员函数，非 const 的对象可以访问任何成员函数，包括const 成员函数**。
+* 1）**const 对象只能访问 const 成员函数（const 对象调用非 const 成员函数会报错），非 const 的对象可以访问任何成员函数，包括const 成员函数**。
 * 2）**函数名、参数、返回值都相同的 const 成员函数和非 cons t成员函数可以构成重载**，那么 const 对象调用 const 成员函数，非 const 对象默认调用非 cons t的成员函数。
 * 3）const 成员函数可以访问所有成员变量，**但是只能访问 const 的成员函数，不能访问非 const 的成员函数**。
 * 4） **非 const 成员函数，可以访问任何成员变量，包括 const 成员成员函数**。
