@@ -1,5 +1,3 @@
-#include "single.h"
-
 #include <iostream>
 
 /*内部静态变量的懒汉实现*/
@@ -11,6 +9,7 @@ class Single {
   // 打印实例地址
   void Print();
 
+ 
  private:
   // 禁止外部构造
   Single();
@@ -26,7 +25,11 @@ class Single {
 };
 
 int main() { 
-  Single s = Single::GetInstance();
+  Single& s = Single::GetInstance();
+  s.Print();
+
+  Single& s2 = Single::GetInstance();
+  s2.Print();
   return 0; 
 }
 
