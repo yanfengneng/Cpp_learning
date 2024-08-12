@@ -86,10 +86,27 @@ target_link_libraries(库文件名称/可执行文件名称（这里需要填生
 **一般通过 `SET(变量名 路径/文件名/ ...)` 来定义变量，通过使用 `${}` 获得变量的内容。**但是在 IF 等语句中，是直接使用变量名而不通过 `${}` 来取值。
 
 * 1）`CMAKE_BINARY_DIR`、` PROJECT_BINARY_DIR`、 `<projectname>_BINARY_DIR`：这三个变量指代的内容是一致的。如果是 in source 编译，则表示的是工程顶层目录。如果是 out of source 编译，则表示的工程编译发生的目录。
-* 2）`CMAKE_SOURCE_DIR`、`PROJECT_SOURCE_DIR`、` <projectname>_SOURCE_DIR`：这三个变量指代的内容是一致的，不论采用何种编译方式，**都表示工程顶层目录。**
-* 3）`PROJECT_NAME`：**表示当前项目的名称**。
+
+* 2）`CMAKE_SOURCE_DIR`、`PROJECT_SOURCE_DIR`、` <projectname>_SOURCE_DIR`：这三个变量指代的内容是一致的，不论采用何种编译方式，**都表示工程顶层目录，也就是工程的根目录。**
+
+* 3）`PROJECT_NAME`：**表示当前项目的名称，也就是通过 `project()` 指定的项目名称**。
+
 * 4）`CMAKE_PROJECT_NAME`：**顶级项目的名称**。该变量保存顶级 CMakeLists.txt 文件中指定的项目名称 `project()` 命令。
-* 5）`CMAKE_VERSION`：表示 CMake 版本号。
+
+* 5）`CMAKE_CURRENT_SOURCE_DIR` ：表示当前 CMakeLists.txt 文件所在的目录。
+
+* 6）`EXECUTABLE_OUTPUT_PATH` ：表示二进制可执行文件输出位置。`LIBRARY_OUTPUT_PATH `：库文件输出位置。
+
+* 7）`CMAKE_C_FLAGS` : 设置 C 编译选项。`CMAKE_CXX_FLAGS `: 设置 C++ 编译选项。
+
+* 8）`CMAKE_CXX_FLAGS_DEBUG` : 设置编译类型 Debug 时的编译选项。`CMAKE_CXX_FLAGS_RELEASE `: 设置编译类型 Release 时的编译选项。
+
+* 9）`CMAKE_GENERATOR `: 编译器名称。`CMAKE_COMMAND `: CMake 可执行文件本身的全路径
+  。`CMAKE_BUILD_TYPE` : 工程编译生成的版本， Debug / Release
+
+* 10）`CMAKE_VERSION`：表示 CMake 版本号。
+
+  
 
 ## 1.3 引入头文件
 
