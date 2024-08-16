@@ -6,3 +6,4 @@ CplusplusQuickGuide/*
 *build/
 *.sh
 *course/
+test/
