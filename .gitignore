@@ -7,3 +7,5 @@ CplusplusQuickGuide/*
 *.sh
 *course/
 test/
+CppGuide/STL/SourceCode/
+!/CppGuide/test
