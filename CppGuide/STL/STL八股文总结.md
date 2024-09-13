@@ -3,7 +3,7 @@ https://github.com/Alinshans/MyTinySTL/tree/master
 
 [STL详解及常见面试题](https://blog.csdn.net/daaikuaichuan/article/details/80717222)
 
-[C++面试-STL篇，细节有点多](https://zhuanlan.zhihu.com/p/614287445)
+好好看看这个，很全面：[C++面试-STL篇，细节有点多](https://zhuanlan.zhihu.com/p/614287445)
 
 [C++ STL面试题](https://blog.csdn.net/weixin_46645965/article/details/136228103)
 

@@ -1,9 +1,11 @@
 - [1.1 std::unique\_ptr](#11-stdunique_ptr)
+  - [shared\_ptr 和 unique\_ptr 都支持的操作](#shared_ptr-和-unique_ptr-都支持的操作)
 - [1.2 std::shared\_ptr](#12-stdshared_ptr)
   - [概念及其特性](#概念及其特性)
   - [内存模型](#内存模型)
   - [循环引用](#循环引用)
-  - [手动实现一个简易的 shared\_ptr](#手动实现一个简易的-shared_ptr)
+  - [普通的 shared\_ptr 仿写](#普通的-shared_ptr-仿写)
+  - [带 weak\_ptr 的 shared\_ptr 的仿写](#带-weak_ptr-的-shared_ptr-的仿写)
 - [1.3 std::weak\_ptr](#13-stdweak_ptr)
 - [1.4 std::auto\_ptr（已弃用）](#14-stdauto_ptr已弃用)
 
@@ -20,6 +22,10 @@ C++ 中有四种主要的智能指针，它们分别是 `std::unique_ptr`、`std
 > [C++ 智能指针unique_ptr、shared_ptr、weak_ptr详解（包含代码示例）](https://blog.csdn.net/weixin_44046545/article/details/139034307)、[知乎：C++11智能指针](https://zhuanlan.zhihu.com/p/670068158)
 
 # 1.1 std::unique_ptr
+
+## shared_ptr 和 unique_ptr 都支持的操作
+
+<img src="Image/shared_ptr和unique_ptr都支持的操作.png" alt="image-20240913155240446" style="zoom: 67%;" />
 
 > 图片引用：[为什么unique的拷贝构造函数和复制函数被delete了](https://blog.csdn.net/lusic01/article/details/134735801)、[C++11中的智能指针unique_ptr、shared_ptr和weak_ptr详解](https://blog.csdn.net/chenlycly/article/details/130918547)
 
@@ -48,7 +54,11 @@ std::unique_ptr<int> ptr = std::make_unique<int>(10);  // 更安全的创建方�
 std::unique_ptr<FILE, decltype(&fclose)> filePtr(fopen("file.txt", "r"), &fclose);
 ```
 
-使用类模板实现一个 `std::unique_ptr` 类：
+## unique_ptr 操作
+
+<img src="Image/unique_ptr的操作.png" alt="image-20240913161950950" style="zoom:67%;" />
+
+## 使用类模板实现一个 std::unique_ptr 类
 
 ```cpp
 template <typename T>
@@ -135,9 +145,12 @@ class UniquePtr {
 - 适用于多个对象或函数共享同一个资源的场景。
 - 需要确保资源在不再需要时自动释放。
 
+由于 shared_ptr 的构造函数是 explicit (显示初始化的)，因此**不能将一个内置指针隐式转换为一个智能指针，必须使用直接初始化（将指针/内存作为构造函数的参数进行初始化）。**1. 将new 申请的内存作为构造函数的参数进行初始化；2. 也可以不使用 new 进行申请内存，但是需要自定义删除器。
+
 ```cpp
 // 使用使用 new 进行创建
-std::shared_ptr<int> p1(new int(10));  // 创建一个 shared_ptr
+srd::shared_ptr<int> p1 = new int(10); // 错误：必须使用直接初始化形式
+std::shared_ptr<int> p1(new int(10));  // 正确：使用了直接初始化形式。创建一个 shared_ptr
 std::shared_ptr<int> p2 = p1;  // p1 和 p2 共享所有权
 
 // std::make_shared 是创建 std::shared_ptr 的推荐方式，因为它能更高效地分配内存，减少内存分配次数。
@@ -154,9 +167,32 @@ std::shared_ptr<FILE> filePtr(fopen("file.txt", "r"), fclose);
 **shared_ptr 的出现：**
 
 * **使用裸指针来管理堆对象（动态内存）是及其容易出现问题的**。<font color=alice>如：忘记释放内存造成的内存泄露、尚有指针引用内存的情况下释放了该内存等等的问题。</font>
-
 * 为了能够更加智能地保留或者释放堆（动态）对象，标准库以及 boost 库提供了智能指针。智能指针负责自己释放所指向的对象。智能指针的使用和普通指针类型，解引用一个智能指针返回它所指的对象。
 * **shared_ptr：允许多个指针指向同一个对象。**
+
+## shared_ptr 独有的操作
+
+<img src="Image/shared_ptr独有的操作.png" alt="image-20240913155433115" style="zoom: 67%;" />
+
+<img src="Image/shared_ptr的构造方式.png" alt="image-20240913155051064" style="zoom: 67%;" />
+
+## 智能指针陷阱
+
+智能指针可以提供对动态分配的内存安全而又方便的管理，但是需要进行正确的使用，以下有几点规范：
+
+* 1）不使用相同的内置指针（new 申请的内存）初始化（或者 reset）多个智能指针。
+* 2）不直接使用 delete 掉 get() 返回的指针。
+* 3）如果使用了 get() 返回的指针，那么当最后一个指针销毁后，该指针就指向无效内存了，没有使用意义了。
+* 4）**若智能指针管理的资源不是 new 进行申请的内存，则需要指定删除器**。
+
+```cpp
+// 自定义删除器
+std::shared_ptr<FILE> sptr(fopen("test_file.txt", "w"), [](FILE* fp) {
+    std::cout << "close " << fp << std::endl;
+    fclose(fp);
+```
+
+
 
 ## 内存模型
 
@@ -492,6 +528,10 @@ int main() {
 
 > [【C++】weak_ptr弱引用智能指针详解](https://blog.csdn.net/qq_38410730/article/details/105903979)
 
+weak_ptr 是一种不控制所指向对象生存期的智能指针，它指向一个由 shared_ptr 所管理的对象。将一个 weak_ptr 绑定到一个 shared_ptr 不会改变 shared_ptr  的引用计数。一旦最后一个指向对象的 shared_ptr 被销毁，对象就会被释放。即使有 weak_ptr 指向对象，对象也还是会被释放，因此 weaK_ptr 为弱引用指针。
+
+<img src="Image/weak_ptr的操作.png" alt="image-20240913163207990" style="zoom:67%;" />
+
 **概念**: 
 
 * `std::weak_ptr` 是**一种不参与对象所有权计数的智能指针，常用于打破 `std::shared_ptr` 之间的循环引用**。<>它不影响对象的生命周期，但可以检测对象是否已经被释放。
@@ -507,6 +547,8 @@ int main() {
 - 用于需要从共享资源中获取非所有权的引用。
 - 防止 `std::shared_ptr` 之间的循环引用导致内存泄漏。
 
+由于指向的对象有可能不存在，**因此不能直接使用 weak_ptr 直接访问对象，使用 `lock()` 来检查对象是否存在**。若存在则返回一个指向共享对象的 shared_ptr，否则就返回一个空的 shared_ptr。
+
 ```cpp
 // std::weak_ptr 通常由 std::shared_ptr 创建，它不会增加引用计数。
 std::shared_ptr<int> sharedPtr = std::make_shared<int>(10);
@@ -514,6 +556,8 @@ std::weak_ptr<int> weakPtr = sharedPtr;  // 由 sharedPtr 创建 weakPtr
 
 std::shared_ptr<int> p1(new int(10));
 std::weak_ptr<int> p2(p1);  // p2 弱引用 p1 的对象
+
+// std::weak_ptr 可以通过 lock 方法创建一个 std::shared_ptr，如果原对象还存在，则返回一个有效的 std::shared_ptr，否则返回一个空指针。
 if (auto sp = p2.lock()) {
     // 使用 sp 访问对象
 } else {

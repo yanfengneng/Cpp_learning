@@ -7,6 +7,7 @@ class UniquePtr {
 
   // 禁用拷贝构造函数
   UniquePtr(const UniquePtr&) = delete;
+
   // 禁用拷贝赋值运算符
   UniquePtr& operator=(const UniquePtr&) = delete;
 
@@ -27,8 +28,9 @@ class UniquePtr {
 
   // 重载 * 操作符
   T& operator*() const { return *ptr_; }
+
   // 重载 -> 操作符
-  T* operator->() const { return ptr_; }
+  T& operator->() const { return ptr_; }
 
   // 判断是否为空
   explicit operator bool() const {
@@ -46,6 +48,7 @@ class UniquePtr {
 
   // 交换指针
   void swap(UniquePtr& other) noexcept { std::swap(ptr_, other.ptr_); }
+
   // 重置指针
   void reset(T* ptr = nullptr) {
     delete ptr_;
@@ -67,7 +70,7 @@ class SharedPtr {
       ref_count_ = new size_t(1);
     }
   }
-  
+
   // 拷贝构造函数
   SharedPtr(const SharedPtr& other)
       : ptr_(other.ptr_), ref_count_(other.ref_count_) {
@@ -97,7 +100,7 @@ class SharedPtr {
   }
 
   // 移动赋值运算符
-  SharedPtr& operator=(SharedPtr&& other) noexcept {
+  SharedPtr& operator=(const SharedPtr&& other) noexcept {
     if (this != &other) {
       release();
       ptr_ = other.ptr_;
@@ -108,6 +111,7 @@ class SharedPtr {
     return *this;
   }
 
+  // 拷贝赋值运算符，能传一个空指针
   SharedPtr& operator=(std::nullptr_t) {
     release();
     ptr_ = nullptr;
@@ -147,7 +151,6 @@ class SharedPtr {
       delete ref_count_;
     }
   }
-
   T* ptr_ = nullptr;
   size_t* ref_count_ = nullptr;
 };

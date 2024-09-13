@@ -5,8 +5,9 @@
 - [5. C 风格类型转换](#5-c-风格类型转换)
 - [总结](#总结)
 
-
 参考：[static_cast和dynamic_cast详解](https://blog.csdn.net/u014624623/article/details/79837849)
+
+> [C++四种强制转换](https://blog.csdn.net/daaikuaichuan/article/details/79476501)
 
 C++ 提供了多种强制类型转换方式，分别用于不同的场景。主要有四种类型转换操作符：`static_cast`、`dynamic_cast`、`const_cast` 和 `reinterpret_cast`。这些转换方式比 C 风格的强制类型转换（如 `(int)x`）更加安全和明确。
 

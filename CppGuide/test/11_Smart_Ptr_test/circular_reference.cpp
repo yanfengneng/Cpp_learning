@@ -36,9 +36,9 @@ int main() {
   //           << std::endl;  // 输出 40
 
   // std::cout << sizeof(std::shared_ptr<int>) << std::endl;  // 输出 16
-  // std::shared_ptr<FILE> sptr(fopen("test_file.txt", "w"), [](FILE* fp) {
-  //   std::cout << "close " << fp << std::endl;
-  //   fclose(fp);
+  std::shared_ptr<FILE> sptr(fopen("test_file.txt", "w"), [](FILE* fp) {
+    std::cout << "close " << fp << std::endl;
+    fclose(fp);
   // });
   // std::cout << sizeof(sptr) << std::endl;  // 输出 16
   return 0;
