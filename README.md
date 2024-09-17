@@ -1,8 +1,11 @@
 目录：
 - [前言](#前言)
 - [01. Cpp 疑难点记录](#01-cpp-疑难点记录)
-- [02. 编译工具](#02-编译工具)
+  - [1.1 STL 总结](#11-stl-总结)
+  - [1.2 编译工具](#12-编译工具)
+- [02. 408 专业基础](#02-408-专业基础)
 - [03. 设计模式](#03-设计模式)
+- [04. Git 总结](#04-git-总结)
 
 
 # 前言
@@ -20,9 +23,25 @@
 8.  [IO总结](CppGuide/08IO总结.md)
 9.  [C++重载函数](CppGuide/09重载运算符.md)
 10. [RAII原理](CppGuide/10RAII原理.md)
+11. [C++智能指针总结](CppGuide/11C++智能指针总结.md)
+12. [C++四种强制类型转换](CppGuide/12C++四种类型转换总结.md)
 
-# 02. 编译工具
+## 1.1 STL 总结
+1. [空间配置器总结](CppGuide/STL/01空间配置器.md)
+2. [vector原理总结](CppGuide/STL/02vector原理总结.cpp)
+
+## 1.2 编译工具
 1. [CMake笔记](CMake/CMake笔记自用版.md) 
 
+# 02. 408 专业基础
+1. [计算机网络](ComputerBasics/计算机网络.md)
+2. [操作系统](ComputerBasics/操作系统.md)
+3. [数据库](ComputerBasics/数据库.md)
+
 # 03. 设计模式
-[C++设计模式](DesignPatterns/C++设计模式.md)
+1. [C++设计模式](DesignPatterns/C++设计模式.md)
+
+# 04. Git 总结
+1. [git 笔记总结](Git/git笔记总结.md)
+
+

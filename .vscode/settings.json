@@ -144,7 +144,8 @@
         "numbers": "cpp",
         "ranges": "cpp",
         "span": "cpp",
-        "stop_token": "cpp"
+        "stop_token": "cpp",
+        "*.ipp": "cpp"
     },
     "cmake.configureOnOpen": false,
     "cmake.sourceDirectory": "/home/yfn/code/Cpp_learning/CMake"
