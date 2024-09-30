@@ -9,7 +9,8 @@
 
 
 # 前言
-该仓库记录自己学习笔记，备战 2024 实习 & 秋招。
+
+C++ 学习笔记总结，用此仓库进行记录并备份。
 
 # 01. Cpp 疑难点记录
 
@@ -33,7 +34,7 @@
 ## 1.2 编译工具
 1. [CMake笔记](CompilationTools/01CMake/CMake笔记自用版.md) 
 2. [GDB笔记](CompilationTools/02GDB/GDB笔记总结.md)
-3. [g++笔记总结](CompilationTools/03G++/g++笔记总结.md)
+3. [G++笔记总结](CompilationTools/03G++/g++笔记总结.md)
 
 # 02. 408 专业基础
 1. [计算机网络](ComputerBasics/计算机网络.md)
