@@ -31,7 +31,9 @@
 2. [vector原理总结](CppGuide/STL/02vector原理总结.cpp)
 
 ## 1.2 编译工具
-1. [CMake笔记](CMake/CMake笔记自用版.md) 
+1. [CMake笔记](CompilationTools/01CMake/CMake笔记自用版.md) 
+2. [GDB笔记](CompilationTools/02GDB/GDB笔记总结.md)
+3. [g++笔记总结](CompilationTools/03G++/g++笔记总结.md)
 
 # 02. 408 专业基础
 1. [计算机网络](ComputerBasics/计算机网络.md)
