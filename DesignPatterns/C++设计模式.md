@@ -10,7 +10,7 @@
   - [2.3 组合模式（Composite Pattern）](#23-组合模式composite-pattern)
   - [2.4 装饰者模式（Decorator Pattern）](#24-装饰者模式decorator-pattern)
   - [2.5 外观模式（Facade Pattern）](#25-外观模式facade-pattern)
-  - [2.6享元模式（Flyweight Pattern）](#26享元模式flyweight-pattern)
+  - [2.6 享元模式（Flyweight Pattern）](#26-享元模式flyweight-pattern)
   - [2.7 代理模式（Proxy Pattern）](#27-代理模式proxy-pattern)
   - [2.8 总结](#28-总结)
 - [三、行为型模式](#三行为型模式)
@@ -25,7 +25,7 @@
 
 1. [单例模式](01单例模式.md)
 
-C++ 中的设计模式是经过验证的通用解决方案，用于解决常见的设计问题。它们通常分为三大类：**创建型**、**结构型**和**行为型**。以下是每种模式的简要总结及其应用：
+C++ 中的设计模式是经过验证的通用解决方案，用于解决常见的设计问题。它们通常分为三大类：**创建型**、**结构型**和**行为型**。以下是每种模式的简要总结及其应用。
 
 # 一、创建型模式
 
@@ -264,7 +264,7 @@ public:
 
 ## 1.5 原型模式（Prototype Pattern）
 
-**描述**：通过复制现有的对象来创建新的对象，而不是通过类的实例化来创建。
+描述：通过**复制现有的对象来创建新的对象，而不是通过类的实例化来创建**。
 
 **应用场景**：当对象的创建成本高昂时，如复杂的初始化或创建需要大量资源；当需要创建与现有对象相似的新对象时。
 
@@ -301,7 +301,7 @@ public:
 
 # 二、结构型模式
 
-结构型模式主要关注**类与对象之间的组合与关系**，它们通过不同的方式组合类或对象来实现更大的结构，以满足更复杂的设计需求。结构型模式的主要目标是处理对象的组合关系，使得系统更灵活、扩展性更好、复用性更强。
+结构型模式主要关注**类与对象之间的组合与关系**，它们通过不同的方式组合类或对象来实现更大的结构，以满足更复杂的设计需求。结构型模式的主要目标是**处理对象的组合关系，使得系统更灵活、扩展性更好、复用性更强**。
 
 ## 2.1 适配器模式（Adapter Pattern）
 
@@ -348,84 +348,207 @@ int main() {
 
 ## 2.2 桥接模式（Bridge Pattern）
 
-- **描述**：将抽象部分与其实现部分分离，使它们可以独立变化。
-- **应用场景**：当需要在多个维度上扩展时，可以使用桥接模式进行解耦。
-- **实现**：
-  ```cpp
-  class Implementor {
-  public:
-      virtual void operationImpl() = 0;
-  };
-  class ConcreteImplementor : public Implementor {
-  public:
-      void operationImpl() override { /* 实现功能 */ }
-  };
-  class Abstraction {
-  protected:
-      Implementor* implementor;
-  public:
-      Abstraction(Implementor* impl) : implementor(impl) {}
-      virtual void operation() { implementor->operationImpl(); }
-  };
-  ```
+**描述**：将抽象部分与其实现部分分离，使它们可以独立变化。
+
+**应用场景**：当需要在多个维度上扩展时，可以使用桥接模式进行解耦。
+
+注意：将抽象与实现分离，使用**组合**而不是**继承**。
+
+**实现**：
+
+```cpp
+// 实现接口
+class Implementor {
+public:
+    virtual void operationImpl() = 0;
+};
+
+// 具体实现类
+class ConcreteImplementorA : public Implementor {
+public:
+    void operationImpl() override {
+        std::cout << "ConcreteImplementorA operation" << std::endl;
+    }
+};
+
+// 抽象接口
+class Abstraction {
+protected:
+    Implementor* implementor;
+public:
+    Abstraction(Implementor* impl) : implementor(impl) {}
+    virtual void operation() = 0;
+};
+
+// 扩展抽象类
+class RefinedAbstraction : public Abstraction {
+public:
+    RefinedAbstraction(Implementor* impl) : Abstraction(impl) {}
+    void operation() override {
+        implementor->operationImpl();
+    }
+};
+
+// 客户端代码
+int main() {
+    Implementor* impl = new ConcreteImplementorA();
+    Abstraction* abstraction = new RefinedAbstraction(impl);
+    abstraction->operation(); // 输出: "ConcreteImplementorA operation"
+    return 0;
+}
+
+```
+
+**优点：**
+
+- 分离了抽象和实现，降低了类之间的耦合度。
+- 实现可以在运行时动态更改，不需要修改抽象部分。
+
+**缺点：**
+
+- 增加了系统的复杂性。
+
+
 
 ## 2.3 组合模式（Composite Pattern）
 
-- **描述**：将对象组合成树形结构，以表示“部分-整体”的层次结构。组合模式使客户端对单个对象和组合对象的使用具有一致性。
-- **应用场景**：用于表示对象的层次结构，如文件系统。
-- **实现**：
-  ```cpp
-  class Component {
-  public:
-      virtual void operation() = 0;
-  };
-  class Leaf : public Component {
-  public:
-      void operation() override { /* 叶子节点的操作 */ }
-  };
-  class Composite : public Component {
-  private:
-      std::vector<Component*> children;
-  public:
-      void add(Component* c) { children.push_back(c); }
-      void operation() override {
-          for (auto* child : children) {
-              child->operation();
-          }
-      }
-  };
-  ```
+**描述**：将对象组合成树形结构，以表示“部分-整体”的层次结构。组合模式使客户端对单个对象和组合对象的使用具有一致性。
+
+**应用场景**：用于表示对象的层次结构，如文件系统。
+
+**关键点：**
+
+- 组合模式基于递归结构。
+- 叶节点和组合节点实现相同的接口。
+
+**实现**：
+
+```cpp
+// 抽象组件
+class Component {
+public:
+    virtual void operation() = 0;
+};
+
+// 叶节点类
+class Leaf : public Component {
+public:
+    void operation() override {
+        std::cout << "Leaf operation" << std::endl;
+    }
+};
+
+// 组合节点类
+class Composite : public Component {
+private:
+    std::vector<Component*> children;
+public:
+    void add(Component* component) {
+        children.push_back(component);
+    }
+    void operation() override {
+        std::cout << "Composite operation" << std::endl;
+        for (auto child : children) {
+            child->operation();
+        }
+    }
+};
+
+// 客户端代码
+int main() {
+    Leaf* leaf1 = new Leaf();
+    Leaf* leaf2 = new Leaf();
+    
+    Composite* composite = new Composite();
+    composite->add(leaf1);
+    composite->add(leaf2);
+    
+    composite->operation(); // 输出: "Composite operation" 和两次 "Leaf operation"
+    return 0;
+}
+```
+
+**优点：**
+
+- 简化了客户端代码，使得客户端可以一致地处理单个对象和组合对象。
+- 可以方便地增加新的组件。
+
+**缺点：**
+
+- 对象层次过于复杂时，可能导致系统的复杂性增加。
+
+
 
 ## 2.4 装饰者模式（Decorator Pattern）
 
-- **描述**：动态地给对象添加职责，而不改变其结构。
-- **应用场景**：用于扩展对象的功能，如图形绘制系统中的滤镜效果。
-- **实现**：
-  ```cpp
-  class Component {
-  public:
-      virtual void operation() = 0;
-  };
-  class ConcreteComponent : public Component {
-  public:
-      void operation() override { /* 基本功能 */ }
-  };
-  class Decorator : public Component {
-  protected:
-      Component* component;
-  public:
-      Decorator(Component* c) : component(c) {}
-      void operation() override { component->operation(); }
-  };
-  class ConcreteDecorator : public Decorator {
-  public:
-      ConcreteDecorator(Component* c) : Decorator(c) {}
-      void operation() override {
-          Decorator::operation();
-          // 扩展功能
-      }
-  };
-  ```
+**描述**：动态地给对象添加职责，而不改变其接口。装饰者模式提供了比继承更灵活的功能扩展方式。
+
+**应用场景**：用于扩展对象的功能，如图形绘制系统中的滤镜效果。
+
+**关键点：**
+
+- 装饰器和被装饰对象实现相同的接口。
+- 装饰器持有被装饰对象的引用，并将操作委托给被装饰对象。
+
+**实现**：
+
+```cpp
+// 抽象组件
+class Component {
+public:
+    virtual void operation() = 0;
+};
+
+// 具体组件
+class ConcreteComponent : public Component {
+public:
+    void operation() override {
+        std::cout << "ConcreteComponent operation" << std::endl;
+    }
+};
+
+// 装饰者抽象类
+class Decorator : public Component {
+protected:
+    Component* component;
+public:
+    Decorator(Component* comp) : component(comp) {}
+    void operation() override {
+        component->operation();
+    }
+};
+
+// 具体装饰者
+class ConcreteDecorator : public Decorator {
+public:
+    ConcreteDecorator(Component* comp) : Decorator(comp) {}
+    void operation() override {
+        Decorator::operation();
+        addedBehavior();
+    }
+    void addedBehavior() {
+        std::cout << "Added behavior" << std::endl;
+    }
+};
+
+// 客户端代码
+int main() {
+    Component* component = new ConcreteComponent();
+    Component* decoratedComponent = new ConcreteDecorator(component);
+    
+    decoratedComponent->operation(); // 输出: "ConcreteComponent operation" 和 "Added behavior"
+    return 0;
+}
+```
+
+**优点：**
+
+- 比继承更灵活，可以在运行时动态地增加或删除对象的功能。
+- 遵循开闭原则（对扩展开放，对修改关闭）。
+
+**缺点：**
+
+- 增加了系统的复杂性，特别是使用过多装饰者时，可能会导致代码难以维护。
 
 
 
@@ -502,11 +625,11 @@ int main() {
 
 
 
-## 2.6享元模式（Flyweight Pattern）
+## 2.6 享元模式（Flyweight Pattern）
 
 **目的：**
 
-通过共享技术来支持大量细粒度对象的高效复用，减少内存使用量。
+通过**共享技术**来支持**大量细粒度对象的高效复用**，减少内存使用量。
 
 **用法场景：**
 
@@ -670,71 +793,78 @@ int main() {
 
 ## 3.1 观察者模式（Observer Pattern）
 
-- **描述**：定义对象间的一对多依赖，当一个对象状态发生变化时，所有依赖它的对象都会收到通知并自动更新。
-- **应用场景**：例如事件系统、GUI控件状态变化。
-- **实现**：
-  ```cpp
-  class Observer {
-  public:
-      virtual void update() = 0;
-  };
-  class Subject {
-  private:
-      std::vector<Observer*> observers;
-  public:
-      void attach(Observer* o) { observers.push_back(o); }
-      void notify() {
-          for (auto* o : observers) {
-              o->update();
-          }
-      }
-  };
-  class ConcreteObserver : public Observer {
-  public:
-      void update() override { /* 更新操作 */ }
-  };
-  ```
+**描述**：定义对象间的一对多依赖，当一个对象状态发生变化时，所有依赖它的对象都会收到通知并自动更新。
+
+**应用场景**：例如事件系统、GUI控件状态变化。
+
+**实现**：
+
+```cpp
+class Observer {
+public:
+    virtual void update() = 0;
+};
+class Subject {
+private:
+    std::vector<Observer*> observers;
+public:
+    void attach(Observer* o) { observers.push_back(o); }
+    void notify() {
+        for (auto* o : observers) {
+            o->update();
+        }
+    }
+};
+class ConcreteObserver : public Observer {
+public:
+    void update() override { /* 更新操作 */ }
+};
+```
 
 ## 3.2 命令模式（Command Pattern）
 
-- **描述**：将请求封装为一个对象，从而使您可以用不同的请求对客户端进行参数化。
-- **应用场景**：例如操作历史记录、事务系统。
-- **实现**：
-  
-  ```cpp
-  class Command {
-  public:
-      virtual void execute() = 0;
-  };
-  class Receiver {
-  public:
-      void action() { /* 执行操作 */ }
-  };
-  class ConcreteCommand : public Command {
-  private:
-      Receiver* receiver;
-  public:
-      ConcreteCommand(Receiver* r) : receiver(r) {}
-      void execute() override { receiver->action(); }
-  };
-  ```
+**描述**：将请求封装为一个对象，从而使您可以用不同的请求对客户端进行参数化。
+
+**应用场景**：例如操作历史记录、事务系统。
+
+**实现**：
+
+```cpp
+class Command {
+public:
+    virtual void execute() = 0;
+};
+class Receiver {
+public:
+    void action() { /* 执行操作 */ }
+};
+class ConcreteCommand : public Command {
+private:
+    Receiver* receiver;
+public:
+    ConcreteCommand(Receiver* r) : receiver(r) {}
+    void execute() override { receiver->action(); }
+};
+```
 
 ## 3.3 状态模式（State Pattern）
-- **描述**：允许对象在内部状态发生改变时改变其行为，看起来像是改变了类。
-- **应用场景**：如状态机，应用于对象有多种状态，并且状态转换较复杂时。
-- **实现**：
-  ```cpp
-  class State {
-  public:
-      virtual void handle() = 0;
-  };
-  class Context {
-  private:
-      State* state;
-  public:
-           void setState(State* s) { state = s; }
-           void request() { state->handle(); }
-  };
-  ```
+**描述**：允许对象在内部状态发生改变时改变其行为，看起来像是改变了类。
+
+**应用场景**：如状态机，应用于对象有多种状态，并且状态转换较复杂时。
+
+**实现**：
+```cpp
+class State {
+public:
+    virtual void handle() = 0;
+};
+class Context {
+private:
+    State* state;
+public:
+         void setState(State* s) { state = s; }
+         void request() { state->handle(); }
+};
+```
 
 这只是设计模式的简要概述，实际应用时要根据具体的场景选择合适的模式。有些模式也可以组合使用，如将**工厂模式**与**单例模式**结合，以管理对象的生命周期。
