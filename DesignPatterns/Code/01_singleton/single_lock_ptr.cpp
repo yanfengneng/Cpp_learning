@@ -49,16 +49,24 @@ SingleInstance *SingleInstance::GetInstance() {
   //  避免每次调用 GetInstance() 的方法都加锁，锁的开销毕竟还是有点大的。
   if (m_SingleInstance == nullptr) {
     std::unique_lock<std::mutex> lock(m_Mutex);  // 加锁
-    if (m_SingleInstance == nullptr) {
+    /*
+      第二次检查（加锁后）是为了确保即使多个线程同时通过了第一次的nullptr检查，
+      在实例化对象前，只有一个线程能够创建实例。这是因为第一次检查后，
+      多个线程可能同时尝试获取锁来创建实例。加锁之后的第二次检查确保了即使多个线程等待锁，
+      只有第一个获取锁的线程进入此区域并判断实例是否已创建，防止多次实例化。
+    */
+    // 获得锁的线程进入此区域后，还是需要判断该实例是否已经创建，来防止多次实例化。
+    if (m_SingleInstance == nullptr) { 
       /**
        * singleton 对象在初始化的时候实际上是分三步的：
           1. 先申请一块内存；
           2. 再调用构造函数进行初始化；
           3. 将内存地址赋值给 m_SingleInstance 。
         但是上述操作在不同编译器上表现可能是不一样的，可能先将内存地址赋值给
-        m_SingleInstance ，再调用构造函数进行初始化。那在并发场景下，线程拿到的 m_SingleInstance
-        可能是还未构造完成的单例对象，在使用时可能出现问题。 先赋值给 temp 在赋值给
-        m_SingleInstance ，可以保证返回的单例对象一定是初始化完成的。
+        m_SingleInstance ，再调用构造函数进行初始化。那在并发场景下，线程拿到的
+       m_SingleInstance 可能是还未构造完成的单例对象，在使用时可能出现问题。
+       先赋值给 temp 在赋值给 m_SingleInstance
+       ，可以保证返回的单例对象一定是初始化完成的。
        */
       volatile auto temp = new (std::nothrow) SingleInstance();
       m_SingleInstance = temp;
