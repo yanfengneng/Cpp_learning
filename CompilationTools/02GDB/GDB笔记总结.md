@@ -10,6 +10,8 @@
     - [2.2.3 调试运行环境相关的命令](#223-调试运行环境相关的命令)
     - [2.2.4 堆栈相关的命令](#224-堆栈相关的命令)
     - [2.2.5 跳转执行](#225-跳转执行)
+  - [2.2.6 调试  core 文件](#226-调试--core-文件)
+  - [2.2.7 调试多线程程序](#227-调试多线程程序)
 
 
 参考：[GDB调试命令详解](https://blog.csdn.net/qq_28351609/article/details/114855630)、[gdb 调试命令](https://www.cnblogs.com/wuyuegb2312/archive/2013/03/29/2987025.html)、[Linux 高级编程 - 15 个 gdb 调试基础命令](https://dlonng.com/posts/gdb)
@@ -37,6 +39,8 @@ GDB 调试器可以用来实现以下几个功能：
 ```shell
 # 安装 gdb
 sudo apt-get install gdb
+# 安装必要的编译工具
+sudo apt-get install build-essential
 
 # 查看 gdb 版本
 gdb -v
@@ -127,3 +131,105 @@ b row_num if condition
 ### 2.2.5 跳转执行
 
 ![image-20240930215721832](Image/跳转命令.png)
+
+
+
+# 三、调试具体程序
+
+`Crash` 指的是**程序因意外错误或异常而突然终止运行**，常见原因有：
+
+1. **空指针解引用**：访问未初始化或已释放的内存。
+2. **数组越界**：访问超出数组范围的元素。
+3. **内存泄漏**：未释放不再使用的内存，导致内存耗尽。
+4. **除零错误**：进行除零操作。
+5. **栈溢出**：递归过深或局部变量过多导致栈空间耗尽。
+6. **竞态条件**：多线程环境下，资源访问顺序不当。
+7. **硬件故障**：内存损坏、磁盘错误等硬件问题。
+
+**主要影响：**
+
+- **数据丢失**：未保存的数据可能丢失。
+- **用户体验**：程序突然关闭，影响用户使用。
+- **系统稳定性**：严重时可能导致操作系统不稳定。
+
+**调试方法：**
+
+1. **日志记录**：通过日志定位问题。
+2. **调试工具**：使用调试器逐步执行代码，检查变量和调用栈。
+3. **代码审查**：通过人工检查发现潜在问题。
+4. **单元测试**：编写测试用例，验证代码的正确性。
+
+
+
+以下两部分主要参考：[程序调试利器GDB – 使用指南](https://zhuanlan.zhihu.com/p/611654345)
+
+## 3.1 调试  core 文件
+
+1）默认情况下，程序 Crash 是不生成 core 文件的，因为默认允许的 core 文件大小为0。在 WSL 中需要使用以下命令中的一个来使程序崩溃时产生 core 文件，参考：[WSL 生成 core 文件命令](https://blog.csdn.net/asitMJ/article/details/135234133)。
+
+```bash
+// 指定文件
+sudo sysctl -w kernel.core_pattern=<desired-file-path>/<desired-file-name>
+
+// 或者保持默认, 哪里段错误，哪里出现core文件
+sudo sysctl -w kernel.core_pattern=core 
+```
+
+2）修改生成 core 文件的大小
+
+```bash
+# ulimit 命令
+man ulimit
+
+# 如果 core 文件没有生成，则需要查看 ulimit 限制
+# 显示目前资源限制的设定
+ulimit -a
+
+# 将 core file 文件大小设置为无限制的
+# -c 表示设置大小的参数，也可以设置为 0
+ulimit -c unlimited
+
+# 来查看 coredump 崩溃的地方
+gdb 二进制文件 core文件
+```
+
+
+
+## 3.2 调试多线程程序
+
+[如何使用gdb调试多线程死锁问题，并定位触发死锁的线程](https://blog.csdn.net/buknow/article/details/125184246)、[线程的查看以及利用gdb调试多线程](https://blog.csdn.net/zhangye3017/article/details/80382496)、[GDB 调试多线程程序的总结 ](https://www.cnblogs.com/WindSun/p/12785322.html)
+
+```bash
+# 查看当前运行的进程
+#  ps （英文全拼：process status）命令用于显示当前进程的状态，类似于 windows 的任务管理器
+# -e：显示所有进程；-f：以完整格式显示进程信息。
+ps aux | grep a.out
+ps -ef | grep a.out
+
+# 查看所有进程
+ps aux    # BSD 风格：显示所有进程的详细信息（用户、PID、CPU、内存等）
+ps -ef    # Unix 风格：显示所有进程的完整命令行
+
+# 查看当前运行的轻量级进程
+ps -aL | grep a.out
+
+# 查看进程的线程
+ps -L -p 1234   # 显示 PID 1234 的所有线程
+
+# 查看主线程和新线程的关系
+pstree -p 主线程id
+```
+
+### 3.2.1 程序阻塞问题排查
+
+
+
+### 3.2.2 数据篡改问题排查
+
+
+
+### 3.2.3 堆内存重复释放问题排查
+
+
+
+![image-20250220210557033](Image/GDB调试多线程命令.png)
