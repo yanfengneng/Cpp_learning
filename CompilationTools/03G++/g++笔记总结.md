@@ -83,7 +83,7 @@ g++ -std=c++11 main.cpp -o main
 - `-mtune=<architecture>`：针对特定处理器优化生成的代码。
 
 ### 综合示例
-假设你有一个 C++ 文件 `main.cpp`，你想使用 C++11 标准进行编译，启用所有常见警告和优化，生成调试信息，并将生成的可执行文件命名为 `myprogram`：
+假设有一个 C++ 文件 `main.cpp`，你想使用 C++11 标准进行编译，启用所有常见警告和优化，生成调试信息，并将生成的可执行文件命名为 `myprogram`：
 
 g++ -std=c++11 -Wall -Wextra -O2 -g main.cpp -o myprogram
 

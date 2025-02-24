@@ -9,3 +9,5 @@ CplusplusQuickGuide/*
 test/
 CppGuide/STL/SourceCode/
 !/CppGuide/test
+core
+
