@@ -63,7 +63,7 @@ class SimplePool {
   explicit SimplePool(size_t threads = std::thread::hardware_concurrency()) {
     for (size_t i = 0; i < threads; ++i) {
       workers_.emplace_back([this]() {
-        for (;;) {
+        for (;;) {// 工作线程就是一个死循环，不停查询任务队列并取出任务执行
           std::function<void()> task;
           if (!queue_.pop(task)) return;
           if (task) task();

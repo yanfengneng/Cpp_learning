@@ -1,9 +1,9 @@
 #ifndef _TANK_H
 #define _TANK_H
 
+#include <chrono>
 #include <iostream>
 #include <string>
-#include <chrono>
 
 class Task {
  public:
@@ -14,11 +14,11 @@ class Task {
   void createTask(void (*hander)(void *arg), void *arg);
   ~Task();
 
-  void (*hander)(void *arg); // 函数指针，用来指向任务处理函数
-  void *arg; // 处理任务函数的参数
+  void (*hander)(void *arg);  // 函数指针，用来指向任务处理函数
+  void *arg;                  // 处理任务函数的参数
   // Task* next; // 指向下一个任务
-  std::string name;
-  static int taskNum; // 任务数量
+  std::string name;    // 任务名
+  static int taskNum;  // 任务数量
 };
 
 // task.cpp
@@ -32,7 +32,8 @@ Task::Task() {
 
 Task::Task(std::string name) {
   this->name = name;
-  taskNum++; // 任务数量加1
+  this->arg = nullptr;
+  taskNum++;
 }
 
 Task::Task(void *arg) {
@@ -41,8 +42,7 @@ Task::Task(void *arg) {
   taskNum++;
 }
 
-inline void Task::createTask(void(* hander)(void *arg), void * arg)
-{
+inline void Task::createTask(void (*hander)(void *arg), void *arg) {
   this->hander = hander;
   this->arg = arg;
 }
@@ -55,8 +55,8 @@ Task::~Task() {
     std::cout << "所有任务执行完成, 完成时间："
               << std::put_time(std::localtime(&now_c), "%Y-%m-%d %H:%M:%S")
               << std::endl;
-    free(this->arg);
   }
+  free(this->arg);
 }
 
 #endif  // _TANK_H

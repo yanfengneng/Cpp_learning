@@ -44,7 +44,7 @@ int main() {
   Task* t4 = new Task("Task4");
   t4->createTask(executeTask_1, n);
 
- // 获取当前时间
+  // 获取当前时间
   auto now = std::chrono::system_clock::now();
   auto now_c = std::chrono::system_clock::to_time_t(now);
   std::cout << "线程池执行任务开始时间: "
@@ -54,6 +54,9 @@ int main() {
   pool.taskPost(t2);
   pool.taskPost(t3);
   pool.taskPost(t4);
+
+  // 等待所有任务完成
+  std::this_thread::sleep_for(std::chrono::seconds(2));
 
   return 0;
 }

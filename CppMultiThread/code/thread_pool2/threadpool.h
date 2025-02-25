@@ -45,10 +45,11 @@ ThreadPool::ThreadPool(unsigned long maxNum) {
   m_minNum = 1;
 
   busyNum = 0;
-  aliveNum = 0;
+  aliveNum = maxNum;  // 初始化活跃线程数
   m_threads.resize(maxNum);
-  // 创建并启动 maxNum 个工作线程
+  // 创建并启动 maxNum 个工作线程 worker
   for (unsigned long i = 0; i < maxNum; i++) {
+    // this 传入 worker 函数作为形参
     m_threads[i] = std::thread(worker, this);
   }
 }
@@ -65,6 +66,7 @@ ThreadPool::~ThreadPool() {
 }
 
 // 向线程池中添加任务
+// 通过主线程 main.cpp 来添加任务，用来通知阻塞线程进行工作
 void ThreadPool::taskPost(Task* task) {
   std::unique_lock<std::mutex> lk(mutexPool);
   // task->next = nullptr;
@@ -78,7 +80,6 @@ void ThreadPool::taskPost(Task* task) {
 
 // 工作线程函数，使用循环不断地从任务队列中取出任务并执行
 // 静态成员函数，将该函数加入到线程中执行表示一个工作线程worker_n
-// 
 void ThreadPool::worker(void* arg) {
   // 获取线程池对象
   ThreadPool* pool = static_cast<ThreadPool*>(arg);
@@ -109,7 +110,8 @@ void ThreadPool::worker(void* arg) {
               << std::put_time(std::localtime(&now_c), "%Y-%m-%d %H:%M:%S")
               << std::endl;
 
-    task->hander(task->arg);
+    // 执行任务函数
+    task->hander(task->arg); // task->arg 为任务函数的参数，与形参 arg 是不一样的
     std::cout << task->name << " finish!" << std::endl;
     delete task;
   }
