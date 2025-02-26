@@ -10,8 +10,13 @@
     - [2.2.3 调试运行环境相关的命令](#223-调试运行环境相关的命令)
     - [2.2.4 堆栈相关的命令](#224-堆栈相关的命令)
     - [2.2.5 跳转执行](#225-跳转执行)
-  - [2.2.6 调试  core 文件](#226-调试--core-文件)
-  - [2.2.7 调试多线程程序](#227-调试多线程程序)
+- [三、调试具体程序](#三调试具体程序)
+  - [3.1 调试  core 文件](#31-调试--core-文件)
+  - [3.2 调试多线程程序](#32-调试多线程程序)
+    - [3.2.1 程序阻塞问题排查](#321-程序阻塞问题排查)
+    - [3.2.2 数据篡改问题排查](#322-数据篡改问题排查)
+    - [3.2.3 堆内存重复释放问题排查](#323-堆内存重复释放问题排查)
+  - [3.3 GDB 调试多进程](#33-gdb-调试多进程)
 
 
 参考：[GDB调试命令详解](https://blog.csdn.net/qq_28351609/article/details/114855630)、[gdb 调试命令](https://www.cnblogs.com/wuyuegb2312/archive/2013/03/29/2987025.html)、[Linux 高级编程 - 15 个 gdb 调试基础命令](https://dlonng.com/posts/gdb)
@@ -233,3 +238,72 @@ pstree -p 主线程id
 
 
 ![image-20250220210557033](Image/GDB调试多线程命令.png)
+
+
+
+## 3.3 GDB 调试多进程
+
+>[GDB调试多进程的命令介绍和演示](https://www.cnblogs.com/liuhanxu/p/17011777.html)、[Linux——gdb调试时多进程切换方法(attach/follow-fork-mode)](https://blog.csdn.net/weixin_61857742/article/details/127241996)
+
+```cpp
+#include <sys/wait.h>
+#include <unistd.h>
+
+#include <iostream>
+using namespace std;
+
+int main() {
+  // 子进程中fork()函数返回 0，在父进程中fork()函数返回子进程的进程ID
+  pid_t pid = fork();
+  if (pid == 0) {  // 子进程
+    printf("I am child, my pid = %d, my parent pid = %d\n", getpid(),
+           getppid());
+  } else if (pid > 0) {  // 父进程
+    printf("I am parent, my pid = %d, my child pid = %d\n", getpid(), pid);
+    wait(NULL);  // 等待子进程退出
+  } else {       // fork失败
+    perror("fork error!\n");
+    return -1;
+  }
+  return 0;
+}
+```
+
+![image-20250226211339940](Image/GDB调试多进程命令.png)
+
+**进程操作命令 inferiors：**
+
+* `info inferiors`：**查看所有进程，带 `*` 号表示当前进程**。
+* `inferiors 2`：切换到编号为2的进程。
+* `detach inferiors 2`：detach掉编号为2的进程，注意这个进程还存在，可以再次用run命令执行它。
+* `kill inferiors 2`：kill掉编号为2的进程，注意这个进程还存在，可以再次用run命令执行它。
+* `add-inferior [-copies n] [-exec executable]`：添加新的调试进程。
+
+***
+
+**只调试子进程 set follow-fork-mode child：**
+
+默认设置下，在调试多进程程序时 GDB 只会调试主进程，在高版本的 GDB  中支持多进程的同时调试。 **换句话说， `GDB` 可以同时调试多个程序. 只需要设置 `follow-fork-mode` (默认值 `parent`) 和 `detach-on-fork` (默认值 `on` )即可。**
+
+* `set follow-fork-mode parent`：只调试父进程，子进程继续运行（GDB默认）。
+* `set follow-fork-mode child`：只调试子进程，父进程继续运行。
+* `show follow-fork-mode`：查看follow-fork-mode当前值，也就是查看当前调试的进程。
+
+***
+
+**同时调试父子进程 set detach-on-fork off：**
+
+* `set detach-on-fork on`：只调试一个进程，可以是父进程或子进程（GDB默认）。
+* <font color=alice>`set detach-on-fork off`：同时调试父子进程，如果 follow-fork-mode是 parent，则 gdb 跟踪父进程，子进程阻塞在 fork 位置。如果 follow-fork-mode 是 child，则 gdb 跟踪子进程，父进程阻塞在 fork 位置。此时用户可以根据调试情况在父进程和子进程之间来回切换调试。</font>
+* `show detach-on-fork`：查看detach-on-fork当前值，也就是查看当前调试的进程模式。
+
+***
+
+**所有进程同步调试：**
+
+* **在调试多进程时，默认情况下，除了当前调试的进程，其他进程都处于挂起状态，所以，如果需要在调试当前进程的时候，其他进程也能正常执行，那么通过设置`set schedule-multiple on`即可**。
+
+* `set schedule-multiple off`：gdb 发出执行命令后，只有当前进程会执行，其他进程挂起（GDB默认）。
+
+* `set schedule-multiple on`：当 `gdb` 发出执行命令后，所有的进程都会正常执行。
+* `show schedule-multiple`：查看schedule-multiple当前值。
