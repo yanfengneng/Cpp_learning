@@ -1,0 +1,5 @@
+= Start
+@ ./test_mtrace.out:(main+0x22)[0x55ced69791cb] + 0x55cf0ef53690 0x64
+@ ./test_mtrace.out:(main+0x32)[0x55ced69791db] - 0x55cf0ef53690
+@ ./test_mtrace.out:(main+0x44)[0x55ced69791ed] + 0x55cf0ef53690 0x64
+= End

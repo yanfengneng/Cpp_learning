@@ -187,6 +187,8 @@ git push origin master  # 推送合并后的修改到远程仓库
 
 ## 补充：git 分支管理
 
+> [【技术】git实用命令总结](https://blog.csdn.net/ann295258232/article/details/73826122)
+
 ```bash
 # 查看本地仓库当前所在分支
 git branch
@@ -204,6 +206,59 @@ git branch -D <branch-name>
 # 删除分支时，你必须不在要删除的分支上。比如，如果你要删除fix_bug，你需要先切换到其他分支 master
 git checkout master
 git branch -d fix-bug
+
+git branch # 本地分支，分支前有*的代表当前分支
+git branch -a # 查看所有分支列表，包括远程分支
+git branch --show-current # 查看当前代码所在分支
+
+# 只拿取某个提交记录的文件变动到某个分支
+git  cherry-pick [commitHash]
+# 重命名分支名称
+git branch -m old_branch new_branch
+
+# 修改本地分支并推送远程
+git branch -m old_branch new_branch # 1. 修改本地分支
+git push --set-upstream origin new_branch # 2. 推送修改后的分支
+git push origin :old_branch # 3. 删除远程的旧分支
+
+# 将远程某个分支合并到当前本地分支
+# git pull origin branch_name
+git checkout new-feature # 切换到当前new-feature功能分支
+git pull origin develop # 合并develop分支代码到本地的new-feature分支代码
+
+# 不切换分支将远程最新代码更到某个分支
+# 如在某个功能分支，将本地的develop分支的代码跟远程develop分支对齐
+git fetch origin develop:develop
+# 然后在某个功能分支合并develop分支的代码就很方便了
+git merge develop
+
+# 新建分支并切换到该新分支
+git checkout -b new_branch_name
+
+# 将某个 commit 号建立一个分支
+git checkout -b new_branch_name 115ffb92f2bf44de4b899faaf6c9f48eac42a641
+
+# 将当前分支推送到远程分支
+git push origin remote_branch
+
+# 首次推送
+git push --set-upstream origin remote_branch
+
+# 删除分支
+git branch -d [deleteBranchName]
+# 强制删除分支
+git branch -d [deleteBranchName]
+# 删除远程分支
+git branch -d [deleteBranchName]
+
+# 克隆某个分支到本地
+# clone_url 是远程克隆路径，拉取后，进入文件夹，输入git branch -a来看分支列表，不要 -a 时是本地的分支
+git clone -b develop clone_url
+
+# 只拿取某个提交记录的文件变动到某个分支
+git cherry-pick [commitHash]
+# 有个小坑，如果cherry-pick同事的代码，下次commit时发现author竟然是同事，得修复一下
+git commit --amend --reset-author
 ```
 
 
