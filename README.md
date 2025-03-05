@@ -26,6 +26,7 @@ C++ 学习笔记总结，用此仓库进行记录并备份。
 10. [RAII原理](CppGuide/10RAII原理.md)
 11. [C++智能指针总结](CppGuide/11C++智能指针总结.md)
 12. [C++四种强制类型转换](CppGuide/12C++四种类型转换总结.md)
+13. [C++模板编程](CppGuide/13C++模板编程.md)
 
 ## 1.1 STL 总结
 1. [空间配置器总结](CppGuide/STL/01空间配置器.md)
