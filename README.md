@@ -30,7 +30,8 @@ C++ 学习笔记总结，用此仓库进行记录并备份。
 
 ## 1.1 STL 总结
 1. [空间配置器总结](CppGuide/STL/01空间配置器.md)
-2. [vector原理总结](CppGuide/STL/02vector原理总结.cpp)
+2. [vector原理总结](CppGuide/STL/02vector原理总结.md)
+3. [自定义哈希函数](CppGuide/STL/03自定义哈希函数.md)
 
 ## 1.2 编译工具
 1. [CMake笔记](CompilationTools/01CMake/CMake笔记自用版.md) 
