@@ -223,6 +223,8 @@ int main() {
 
 ## epoll
 
+> [要清晰明白EPOLL为什么性能好](https://www.cnblogs.com/Hijack-you/p/13057792.html)、[一图总结epoll的总体工作流程](https://blog.csdn.net/zhpCSDN921011/article/details/125580548)
+
 epoll 可以理解为 event poll，不同于忙轮询和无差别轮询，epoll 会把哪个流发生了怎么样的 IO 事件通知给我们。对于 epoll 实际上是**事件驱动（每个事件关联到 fd）的**，此时我们对于这些流的操作都是有意义的（复杂度降低到了O(1)）。
 
 ```cpp
