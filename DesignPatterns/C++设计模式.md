@@ -31,6 +31,10 @@ C++ 中的设计模式是经过验证的通用解决方案，用于解决常见�
 
 创建型模式在设计模式中主要处理**对象的创建**。其主要目的是**解耦对象的创建和使用**，让对象的创建过程更灵活、可扩展，从而提高代码的可维护性和可复用性。
 
+<font color=blue>创建型模式对类的实例化过程进行了抽象，能够将软件模块中**对象的创建和对象的使用进行分离**。</font>为了使软件的结构更加清晰，外界仅需要知道它们的共同接口，而不需要了解其具体实现的细节，从而使整个系统的设计更加符合单一职责原则。
+
+创建型模式**在创建什么（what）、由谁创建（who）、何时创建（when）**等方面都为软件设计者提供了尽可能大的灵活性。创建型模式**隐藏了类的实例的创建细节**，**通过隐藏对象如何被创建和组合在一起**达到整个系统独立的目的。
+
 ## 1.1 单例模式（Singleton Pattern）
 
 **描述**：确保某个类只有一个实例，并提供全局访问点。通常用于管理共享资源或全局配置。
@@ -60,142 +64,194 @@ private:
 
 ## 1.2 工厂方法模式（Factory Method Pattern）
 
-**描述**：定义一个用于创建对象的接口，但由子类决定实例化哪一个具体类。它将实例化的过程推迟到子类中。
+工厂方法模式的核心思想是**通过定义一个创建对象的接口（`createTransport()`），将对象的创建延迟到子类中（`RoadLogistics` 和 `SeaLogistics`），由子类决定实例化哪一个类（`Truck` 或 `Ship`）**。这样做的好处是可以在不修改现有代码的情况下引入新的产品类型，符合开闭原则（对扩展开放，对修改关闭）。
 
-**应用场景**：当对象的创建涉及复杂的逻辑，且需要根据不同的条件实例化不同的对象时。
+**优点**：1）工厂方法将具体类的实例化延迟到子类中，符合开闭原则（对扩展开放，对修改关闭）。2）客户端代码不需要知道具体类，只需通过抽象类接口操作。
 
-**关键点：**
+**缺点：每增加一个产品类，可能需要增加相应的具体工厂类，类的数量增加。**
 
-- 工厂方法返回抽象产品，而不是具体产品。
-- 子类提供具体的创建方法。
+在以下代码中，`Logistics` 类定义了一个创建 `Transport` 对象的接口 `createTransport()`，具体的 `RoadLogistics` 和 `SeaLogistics` 类实现了这个接口，分别创建 `Truck` 和 `Ship` 对象。这样，当需要增加新的运输方式时，只需创建一个新的具体工厂类并实现 `createTransport()` 方法即可，无需修改现有的代码。
 
-**实现**：
+**代码如下：**
 
 ```cpp
+#include <iostream>
+
 // 抽象产品
-class Product {
-public:
-    virtual void use() = 0;
+class Transport {
+ public:
+  virtual void deliver() = 0;
+  virtual ~Transport() = default;
 };
 
-/* 具体产品 */
-class ConcreteProductA : public Product {
-public:
-    void use() override { std::cout << "Using Product A" << std::endl; }
+// 具体产品：卡车
+class Truck : public Transport {
+ public:
+  // 重写父类的纯虚函数
+  virtual void deliver() override {
+    std::cout << "Delivering by land (Truck)" << std::endl;
+  }
 };
 
-class ConcreteProductB : public Product {
-public:
-    void use() override { std::cout << "Using Product B" << std::endl; }
+// 具体产品：轮船
+class Ship : public Transport {
+ public:
+  // 重写父类的纯虚函数
+  virtual void deliver() override {
+    std::cout << "Delivering by sea (Ship)" << std::endl;
+  }
 };
 
 // 抽象工厂
-class Creator {
-public:
-    virtual Product* factoryMethod() = 0;
+class Logistics {
+ public:
+  // 纯虚函数，要求子类实现该方法，并创建具体的产品 Transport
+  // 定义创建对象的接口，该接口是纯虚函数，要求所有继承 Logistics
+  // 的子类必须实现这个方法，以创建具体的 Trasport 对象
+  virtual Transport* createTransport() = 0;
+
+  // planDelivery() 方法调用了 createTransport() 方法来创建 Transport
+  // 对象，但具体创建哪种 Transport 对象由子类决定
+  void planDelivery() {
+    Transport* transport = createTransport();
+    transport->deliver();
+    delete transport;
+  }
+  virtual ~Logistics() = default;
 };
 
-// 具体工厂
-class ConcreteCreatorA : public Creator {
-public:
-    Product* factoryMethod() override { return new ConcreteProductA(); }
+//  RoadLogistics 和 SeaLogistics 是 Logistics 的子类，它们分别实现了
+//  createTransport() 方法，决定实例化 Truck 和 Ship 对象。
+// 具体工厂：陆运
+class RoadLogistics : public Logistics {
+ public:
+  virtual Transport* createTransport() override { return new Truck(); }
 };
 
-class ConcreteCreatorB : public Creator {
-public:
-    Product* factoryMethod() override { return new ConcreteProductB(); }
+// 具体工厂：海运
+class SeaLogistics : public Logistics {
+ public:
+  virtual Transport* createTransport() override { return new Ship(); }
 };
+
+int main() {
+  // 创建一个具体工厂对象，调用 planDelivery() 方法
+  Logistics* roadLogistics = new RoadLogistics();
+  roadLogistics->planDelivery();  // Output: Delivering by land (Truck)
+
+  Logistics* seaLogistics = new SeaLogistics();
+  seaLogistics->planDelivery();  // Output: Delivering by sea (Ship)
+
+  delete roadLogistics;
+  delete seaLogistics;
+  return 0;
+}
 ```
-
-**优点：**
-
-- 工厂方法将具体类的实例化延迟到子类中，符合开闭原则（对扩展开放，对修改关闭）。
-- 客户端代码不需要知道具体类，只需通过抽象类接口操作。
-
-**缺点：**
-
-- 每增加一个产品类，可能需要增加相应的具体工厂类，类的数量增加。
 
 
 
 ## 1.3 抽象工厂模式（Abstract Factory Pattern）
 
-**描述**：提供一个接口，用于创建一系列相关或相互依赖的对象，而无需指定它们的具体类。
-
 **应用场景**：当需要创建一组互相关联的对象时，例如跨平台的 UI 工具包，一个工具包可能包含按钮、文本框、菜单等。
 
 **关键点**：提供一组工厂方法，每个方法创建相关的对象。
 
+抽象工厂模式的核心思想是**提供一个接口，用于创建一系列相关或相互依赖的对象，而无需指定它们具体的类**。这样做的好处是可以在不修改现有代码的情况下引入新的产品系列，符合开闭原则（对扩展开放，对修改关闭）。
+
+在这个例子中，**GUIFactory 类定义了创建 Button 和 TextBox 对象的接口，具体的 WinFactory 和 MacFactory 类实现了这个接口，分别创建 Windows 和 Mac 的按钮和文本框对象**。这样，当需要增加新的操作系统支持时，**只需创建一个新的具体工厂类并实现 GUIFactory 接口即可**，无需修改现有的代码。
+
+**优点：**1）提供了一致的方法创建一系列相关对象，而无需指定它们的具体类。2）客户端不需要知道具体平台的实现，便可以创建相关对象。
+
+**缺点**：增加新的产品族会非常困难，需要修改抽象工厂及所有具体工厂的接口。
+
 **实现**：
 
 ```cpp
-// 抽象产品
+#include <iostream>
+
+// 抽象按钮
 class Button {
-public:
-    virtual void paint() = 0;
+ public:
+  virtual void render() = 0;
+  virtual ~Button() = default;
 };
 
-class TextBox {
-public:
-    virtual void render() = 0;
-};
-
-// 具体产品：windows 按钮
+// Windows 按钮
 class WinButton : public Button {
-public:
-    void paint() override { std::cout << "Painting Windows Button" << std::endl; }
+ public:
+  virtual void render() override { std::cout << "Windows Button" << std::endl; }
 };
 
 // Mac 按钮
 class MacButton : public Button {
-public:
-    void paint() override { std::cout << "Painting Mac Button" << std::endl; }
+ public:
+ virtual void render() override { std::cout << "Mac Button" << std::endl; }
+};
+
+// 抽象文本框
+class TextBox {
+ public:
+  virtual void render() = 0;
+  virtual ~TextBox() = default;
 };
 
 // Windows 文本框
 class WinTextBox : public TextBox {
-public:
-    void render() override { std::cout << "Rendering Windows TextBox" << std::endl; }
+ public:
+ virtual void render() override { std::cout << "Windows TextBox" << std::endl; }
 };
 
 // Mac 文本框
 class MacTextBox : public TextBox {
-public:
-    void render() override { std::cout << "Rendering Mac TextBox" << std::endl; }
+ public:
+ virtual void render() override { std::cout << "Mac TextBox" << std::endl; }
 };
 
 // 抽象工厂
 class GUIFactory {
-public:
-    virtual Button* createButton() = 0;
-    virtual TextBox* createTextBox() = 0;
+ public:
+  virtual Button* createButton() = 0;
+  virtual TextBox* createTextBox() = 0;
+  virtual ~GUIFactory() = default;
 };
 
-// 具体工厂：Windows 工厂
+// Windows 工厂
 class WinFactory : public GUIFactory {
-public:
-    Button* createButton() override { return new WinButton(); }
-    TextBox* createTextBox() override { return new WinTextBox(); }
+ public:
+  Button* createButton() override { return new WinButton(); }
+  TextBox* createTextBox() override { return new WinTextBox(); }
 };
 
 // Mac 工厂
 class MacFactory : public GUIFactory {
-public:
-    Button* createButton() override { return new MacButton(); }
-    TextBox* createTextBox() override { return new MacTextBox(); }
+ public:
+  Button* createButton() override { return new MacButton(); }
+  TextBox* createTextBox() override { return new MacTextBox(); }
 };
+
+// 客户端代码
+// 提供一个接口，创建一组相关或依赖的对象
+void createUI(GUIFactory& factory) {
+  Button* button = factory.createButton();
+  TextBox* textBox = factory.createTextBox();
+  button->render();
+  textBox->render();
+  delete button;
+  delete textBox;
+}
+
+int main() {
+  GUIFactory* winFactory = new WinFactory();
+  createUI(*winFactory);  // Output: Windows Button \n Windows TextBox
+
+  GUIFactory* macFactory = new MacFactory();
+  createUI(*macFactory);  // Output: Mac Button \n Mac TextBox
+
+  delete winFactory;
+  delete macFactory;
+  return 0;
+}
 ```
-
-**优点：**
-
-- 提供了一致的方法创建一系列相关对象，而无需指定它们的具体类。
-- 客户端不需要知道具体平台的实现，便可以创建相关对象。
-
-**缺点：**
-
-- 增加新的产品族会非常困难，需要修改抽象工厂及所有具体工厂的接口。
-
-
 
 ## 1.4 建造者模式（Builder Pattern）
 
@@ -205,60 +261,93 @@ public:
 
 **关键点**：将构造过程与表示分离；允许一步步的构建，同时隐藏复杂的构建逻辑。
 
+建造者模式的核心思想是将**一个复杂对象的构建过程与其表示分离，使得同样的构建过程可以创建不同的表示**。建造者模式通常包括以下几个角色：
+
+1. **产品（Product）**：最终要构建的复杂对象。
+2. **抽象建造者（Builder）**：定义构建产品各个部分的接口。
+3. **具体建造者（ConcreteBuilder）**：实现抽象建造者接口，构建和装配产品的各个部分。
+4. **导演（Director）**：负责管理构建过程，调用建造者的方法来构建产品。
+
+在这个例子中，`Computer` 是产品类，`ComputerBuilder` 是抽象建造者类，`GamingComputerBuilder` 是具体建造者类，`Director` 是导演类。通过将构建过程与表示分离，建造者模式使得构建过程可以灵活地创建不同的产品表示。
+
+**优点：**1）可以改变建造过程来得到不同的表示。2）构建过程可以被复用，避免了构造函数的膨胀。
+
+**缺点：**增加了复杂性，尤其是产品类特别简单时，使用该模式显得有些冗余。
+
 **实现**：
 
 ```cpp
-// 产品类
-class Product {
-private:
-    std::string partA;
-    std::string partB;
-public:
-    void setPartA(const std::string& part) { partA = part; }
-    void setPartB(const std::string& part) { partB = part; }
-    void show() { std::cout << "Product with " << partA << " and " << partB << std::endl; }
+#include <iostream>
+#include <memory>
+#include <string>
+
+// 最终产品：电脑
+class Computer {
+ public:
+  void setCPU(const std::string& cpu) { m_cpu = cpu; }
+  void setRAM(const std::string& ram) { m_ram = ram; }
+  void setStorage(const std::string& storage) { m_storage = storage; }
+
+  void showSpec() const {
+    std::cout << "CPU: " << m_cpu << "\n"
+              << "RAM: " << m_ram << "\n"
+              << "Storage: " << m_storage << std::endl;
+  }
+
+ private:
+  std::string m_cpu;
+  std::string m_ram;
+  std::string m_storage;
 };
 
 // 抽象建造者
-class Builder {
-public:
-    virtual void buildPartA() = 0;
-    virtual void buildPartB() = 0;
-    virtual Product* getResult() = 0;
+class ComputerBuilder {
+ public:
+  virtual ~ComputerBuilder() = default;
+  virtual void buildCPU() = 0;
+  virtual void buildRAM() = 0;
+  virtual void buildStorage() = 0;
+  virtual Computer getResult() = 0;
 };
 
-// 具体建造者
-class ConcreteBuilder : public Builder {
-private:
-    Product* product;
-public:
-    ConcreteBuilder() { product = new Product(); }
-    void buildPartA() override { product->setPartA("PartA"); }
-    void buildPartB() override { product->setPartB("PartB"); }
-    Product* getResult() override { return product; }
+// 具体建造者：游戏电脑
+class GamingComputerBuilder : public ComputerBuilder {
+ public:
+  GamingComputerBuilder() { m_computer = Computer(); }
+
+  void buildCPU() override { m_computer.setCPU("Intel i9"); }
+  void buildRAM() override { m_computer.setRAM("32GB DDR5"); }
+  void buildStorage() override { m_computer.setStorage("2TB NVMe SSD"); }
+  Computer getResult() override { return m_computer; }
+
+ private:
+  Computer m_computer;
 };
 
-// 指导者
+// 导演类（可选）
 class Director {
-private:
-    Builder* builder;
-public:
-    Director(Builder* b) : builder(b) {}
-    void construct() {
-        builder->buildPartA();
-        builder->buildPartB();
-    }
+ public:
+  Computer construct(ComputerBuilder& builder) {
+    builder.buildCPU();
+    builder.buildRAM();
+    builder.buildStorage();
+    return builder.getResult();
+  }
 };
+
+int main() {
+  GamingComputerBuilder builder; // 创建游戏电脑建造者
+  Director director;
+  Computer computer = director.construct(builder);
+  computer.showSpec();
+  // Output:
+  // CPU: Intel i9
+  // RAM: 32GB DDR5
+  // Storage: 2TB NVMe SSD
+
+  return 0;
+}
 ```
-
-**优点：**
-
-- 可以改变建造过程来得到不同的表示。
-- 构建过程可以被复用，避免了构造函数的膨胀。
-
-**缺点：**
-
-- 增加了复杂性，尤其是产品类特别简单时，使用该模式显得有些冗余。
 
 
 
@@ -273,19 +362,56 @@ public:
 **实现**：
 
 ```cpp
+#include <iostream>
+#include <memory>
+
+// 抽象原型接口
 class Prototype {
-public:
-    virtual Prototype* clone() const = 0;
+ public:
+  virtual ~Prototype() = default;
+  virtual std::unique_ptr<Prototype> clone() const = 0;
+  virtual void print() const = 0;
 };
 
-class ConcretePrototype : public Prototype {
-private:
-    int field;
-public:
-    ConcretePrototype(int val) : field(val) {}
-    Prototype* clone() const override { return new ConcretePrototype(*this); }
-    void show() { std::cout << "Field: " << field << std::endl; }
+// 具体原型：文档模板
+class DocumentTemplate : public Prototype {
+ public:
+  DocumentTemplate(const std::string& title, const std::string& content)
+      : m_title(title), m_content(content) {}
+
+  std::unique_ptr<Prototype> clone() const override {
+    return std::make_unique<DocumentTemplate>(
+        *this);  // 深拷贝（假设成员可拷贝）
+  }
+
+  void print() const override {
+    std::cout << "Title: " << m_title << "\nContent: " << m_content
+              << std::endl;
+  }
+
+  void setContent(const std::string& content) { m_content = content; }
+
+ private:
+  std::string m_title;
+  std::string m_content;
 };
+
+int main() {
+  DocumentTemplate original("Report", "Initial content");
+  auto clone = original.clone();
+
+  // 使用 dynamic_cast 将 Prototype 类型转换为 DocumentTemplate 类型
+  DocumentTemplate* clonedDoc = dynamic_cast<DocumentTemplate*>(clone.get());
+  if (clonedDoc) {
+    clonedDoc->setContent("Modified content");
+  }
+  // clone->setContent("Modified content");
+
+  original.print();  // Output: Title: Report \n Content: Initial content
+  clone->print();    // Output: Title: Report \n Content: Modified content
+
+  return 0;
+}
 ```
 
 **优点：**
