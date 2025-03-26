@@ -4,6 +4,7 @@
   - [1.3 抽象工厂模式（Abstract Factory Pattern）](#13-抽象工厂模式abstract-factory-pattern)
   - [1.4 建造者模式（Builder Pattern）](#14-建造者模式builder-pattern)
   - [1.5 原型模式（Prototype Pattern）](#15-原型模式prototype-pattern)
+  - [1.6 创建型模式总结](#16-创建型模式总结)
 - [二、结构型模式](#二结构型模式)
   - [2.1 适配器模式（Adapter Pattern）](#21-适配器模式adapter-pattern)
   - [2.2 桥接模式（Bridge Pattern）](#22-桥接模式bridge-pattern)
@@ -44,20 +45,48 @@ C++ 中的设计模式是经过验证的通用解决方案，用于解决常见�
 **实现**：
 
 ```cpp
+#include <iostream>
+#include <mutex>
+
 class Singleton {
+private:
+    static Singleton* instance;
+    static std::mutex mtx;
+
+    // 私有构造函数
+    Singleton() = default;
+
 public:
-    // 静态方法，用于获取唯一实例
-    static Singleton& getInstance() {
-        static Singleton instance;
+    // 禁用拷贝和赋值
+    Singleton(const Singleton&) = delete;
+    Singleton& operator=(const Singleton&) = delete;
+
+    static Singleton* getInstance() {
+        std::lock_guard<std::mutex> lock(mtx);  // 线程安全
+        if (!instance) {
+            instance = new Singleton();
+        }
         return instance;
     }
-private:
-    // 私有化构造函数，防止外部实例化
-    Singleton() {}
-    // 禁用复制构造函数和赋值运算符
-    Singleton(const Singleton&) = delete;
-    void operator=(const Singleton&) = delete;
+
+    void doSomething() {
+        std::cout << "Singleton instance working" << std::endl;
+    }
 };
+
+// 静态成员初始化
+Singleton* Singleton::instance = nullptr;
+std::mutex Singleton::mtx;
+
+int main() {
+    Singleton* s1 = Singleton::getInstance();
+    Singleton* s2 = Singleton::getInstance();
+
+    std::cout << "s1 == s2? " << (s1 == s2) << std::endl;  // Output: 1 (true)
+    s1->doSomething();  // Output: Singleton instance working
+
+    return 0;
+}
 ```
 
 
@@ -71,6 +100,10 @@ private:
 **缺点：每增加一个产品类，可能需要增加相应的具体工厂类，类的数量增加。**
 
 在以下代码中，`Logistics` 类定义了一个创建 `Transport` 对象的接口 `createTransport()`，具体的 `RoadLogistics` 和 `SeaLogistics` 类实现了这个接口，分别创建 `Truck` 和 `Ship` 对象。这样，当需要增加新的运输方式时，只需创建一个新的具体工厂类并实现 `createTransport()` 方法即可，无需修改现有的代码。
+
+***
+
+总结下：**工厂模式需要有一个产品基类，一个工厂基类**，然后再产品基类上派生出具体产品类，一个具体产品类对应一个具体工厂类，由该具体工厂来创建具体的产品。工厂基类负责实现两个函数，一个是**创建具体产品的纯虚函数**，另一个是调用产品的功能函数，该函数需要创建具体的产品，然后由该具体产品来调用其功能函数；由于创建具体产品的函数为纯虚函数，因此必须**由具体工厂来实现该函数并创建具体产品**。
 
 **代码如下：**
 
@@ -160,7 +193,7 @@ int main() {
 
 在这个例子中，**GUIFactory 类定义了创建 Button 和 TextBox 对象的接口，具体的 WinFactory 和 MacFactory 类实现了这个接口，分别创建 Windows 和 Mac 的按钮和文本框对象**。这样，当需要增加新的操作系统支持时，**只需创建一个新的具体工厂类并实现 GUIFactory 接口即可**，无需修改现有的代码。
 
-**优点：**1）提供了一致的方法创建一系列相关对象，而无需指定它们的具体类。2）客户端不需要知道具体平台的实现，便可以创建相关对象。
+**优点**：1）提供了一致的方法创建一系列相关对象，而无需指定它们的具体类。2）客户端不需要知道具体平台的实现，便可以创建相关对象。
 
 **缺点**：增加新的产品族会非常困难，需要修改抽象工厂及所有具体工厂的接口。
 
@@ -253,13 +286,15 @@ int main() {
 }
 ```
 
+
+
 ## 1.4 建造者模式（Builder Pattern）
 
 **描述**：将对象的构建过程与其表示分离，以便同样的构建过程可以创建不同的表示。
 
 **应用场景**：用于创建复杂对象，例如构建多步骤对象（如汽车、房子）。
 
-**关键点**：将构造过程与表示分离；允许一步步的构建，同时隐藏复杂的构建逻辑。
+**关键点**：将构造过程与表示分离；**允许一步步的构建，同时隐藏复杂的构建逻辑**。
 
 建造者模式的核心思想是将**一个复杂对象的构建过程与其表示分离，使得同样的构建过程可以创建不同的表示**。建造者模式通常包括以下几个角色：
 
@@ -353,11 +388,15 @@ int main() {
 
 ## 1.5 原型模式（Prototype Pattern）
 
-描述：通过**复制现有的对象来创建新的对象，而不是通过类的实例化来创建**。
+**关键点**：提供克隆自身的能力；可以通过**深拷贝或浅拷贝**来实现。
 
-**应用场景**：当对象的创建成本高昂时，如复杂的初始化或创建需要大量资源；当需要创建与现有对象相似的新对象时。
+原型模式的核心思想是**通过复制现有的对象来创建新对象，而不是通过实例化类来创建对象**。这样做的好处是可以避免创建对象时的复杂初始化过程，并且可以在运行时动态地创建对象。
 
-**关键点**：提供克隆自身的能力；可以通过深拷贝或浅拷贝来实现。
+在这个例子中，Prototype 类定义了一个克隆对象的接口 clone()，具体的 DocumentTemplate 类实现了这个接口，**通过深拷贝来克隆对象**。这样，**当需要创建一个新的 DocumentTemplate 对象时，可以通过克隆现有的对象来实现，而不需要重新实例化类**。
+
+**优点**：1）**通过克隆而不是实例化来创建对象**，减少了复杂对象创建的开销。2）**可以在运行时动态改变具体对象的类型**。
+
+**缺点**：如果对象之间存在复杂的依赖关系，克隆可能会变得复杂，特别是深拷贝时需要处理的对象间依赖关系。
 
 **实现**：
 
@@ -414,14 +453,17 @@ int main() {
 }
 ```
 
-**优点：**
 
-- **通过克隆而不是实例化来创建对象**，减少了复杂对象创建的开销。
-- **可以在运行时动态改变具体对象的类型**。
 
-**缺点：**
+## 1.6 创建型模式总结
 
-- 如果对象之间存在复杂的依赖关系，克隆可能会变得复杂，特别是深拷贝时需要处理的对象间依赖关系。
+| **模式** |       **核心目标**       |           **适用场景**           |
+| :------: | :----------------------: | :------------------------------: |
+|   单例   |       全局唯一实例       | 配置管理、日志服务等全局唯一场景 |
+| 工厂方法 | **由子类决定实例化对象** |   需要动态创建**不同子类对象**   |
+| 抽象工厂 |   **创建一组相关对象**   |  跨平台组件、产品族兼容性要求高  |
+|  建造者  |  **分步骤构造复杂对象**  | 构造过程复杂、需要灵活配置的对象 |
+|   原型   |   **通过克隆生成对象**   |   对象创建成本高、需要快速复制   |
 
 
 

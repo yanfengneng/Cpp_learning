@@ -34,6 +34,10 @@ class DocumentTemplate : public Prototype {
 
 int main() {
   DocumentTemplate original("Report", "Initial content");
+
+  // clone() 返回的类型是基类 std::unique_ptr<Prototype>，但实际上返回的是派生类
+  // DocumentTemplate，因此需要将 std::unique_ptr<Prototype> 转换为
+  // std::unique_ptr<DocumentTemplate> 才能调用 setContent() 方法
   auto clone = original.clone();
 
   // 使用 dynamic_cast 将 Prototype 类型转换为 DocumentTemplate 类型

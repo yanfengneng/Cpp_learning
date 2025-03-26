@@ -36,7 +36,9 @@ class Logistics {
   // planDelivery() 方法调用了 createTransport() 方法来创建 Transport
   // 对象，但具体创建哪种 Transport 对象由子类决定
   void planDelivery() {
+    // 多态是调用基类指针指向对象的虚函数，而与本身指针类型无关，因此这里生成派生类的实例对象
     Transport* transport = createTransport();
+    // 调用派生类实例对象的 deliver() 函数
     transport->deliver();
     delete transport;
   }
