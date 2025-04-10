@@ -44,9 +44,10 @@ std::mutex SingleInstance::m_Mutex;
 
 // 注意：不能返回指针的引用，否则存在外部被修改的风险！
 SingleInstance *SingleInstance::GetInstance() {
-  //  这里使用了两个 if
-  //  判断语句的技术称为双检锁；好处是，只有判断指针为空的时候才加锁，
-  //  避免每次调用 GetInstance() 的方法都加锁，锁的开销毕竟还是有点大的。
+  // 这里使用了两个 if
+  // 判断语句的技术称为双检锁；好处是，只有判断指针为空的时候才加锁，
+  // 避免每次调用 GetInstance() 的方法都加锁，锁的开销毕竟还是有点大的。
+  // 若实例已存在，则直接返回，无需进入锁定区域
   if (m_SingleInstance == nullptr) {
     std::unique_lock<std::mutex> lock(m_Mutex);  // 加锁
     /*

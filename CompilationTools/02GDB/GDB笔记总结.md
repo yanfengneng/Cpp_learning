@@ -274,7 +274,7 @@ int main() {
 **进程操作命令 inferiors：**
 
 * `info inferiors`：**查看所有进程，带 `*` 号表示当前进程**。
-* `inferiors 2`：切换到编号为2的进程。
+* `inferiors 2`：切换到编号为 2 的进程。
 * `detach inferiors 2`：detach掉编号为2的进程，注意这个进程还存在，可以再次用run命令执行它。
 * `kill inferiors 2`：kill掉编号为2的进程，注意这个进程还存在，可以再次用run命令执行它。
 * `add-inferior [-copies n] [-exec executable]`：添加新的调试进程。

@@ -100,7 +100,7 @@ disown
 - **bg**：将暂停的程序放入后台。
 - **disown**：使程序与终端分离，终端关闭后程序继续运行。
 
-[小神仙讲 GDB](https://www.bilibili.com/video/BV1EK411g7Li?spm_id_from=333.788.player.switch&vd_source=93d2c7cab25a2966d2b5d0ccf80348c8&p=7)
+> [小神仙讲 GDB](https://www.bilibili.com/video/BV1EK411g7Li?spm_id_from=333.788.player.switch&vd_source=93d2c7cab25a2966d2b5d0ccf80348c8&p=7)
 
 
 
@@ -153,10 +153,8 @@ gdb
 sudo sysctl -w kernel.core_pattern=<desired-file-path>/<desired-file-name>
 
 // 或者保持默认, 哪里段错误，哪里出现core文件
-sudo sysctl -w kernel.core_pattern=core 
+sudo sysctl -w kernel.core_pattern=c=ore 
 ```
-
-
 
 当程序崩溃后，如果生成了 core 文件，就可以通过 GDB 加载 core 文件来调试发生异常时的程序信息。core 文件并没有限制当前机器相关信息的，可以拷贝 core 文件到另一台机器进行 core 分析，但前提是产生 core 文件的程序的符号表，需要和分析 core 文件时加载的程序的符号表保持一致。
 
