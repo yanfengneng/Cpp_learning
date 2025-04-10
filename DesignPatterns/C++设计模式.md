@@ -136,49 +136,52 @@ class Ship : public Transport {
 };
 
 // 抽象工厂
-class Logistics {
+class Factory {
  public:
   // 纯虚函数，要求子类实现该方法，并创建具体的产品 Transport
-  // 定义创建对象的接口，该接口是纯虚函数，要求所有继承 Logistics
+  // 定义创建对象的接口，该接口是纯虚函数，要求所有继承 Factory
   // 的子类必须实现这个方法，以创建具体的 Trasport 对象
   virtual Transport* createTransport() = 0;
 
   // planDelivery() 方法调用了 createTransport() 方法来创建 Transport
   // 对象，但具体创建哪种 Transport 对象由子类决定
   void planDelivery() {
+    // 多态是调用基类指针指向对象的虚函数，而与本身指针类型无关，因此这里生成派生类的实例对象
     Transport* transport = createTransport();
+    // 调用派生类实例对象的 deliver() 函数
     transport->deliver();
     delete transport;
   }
-  virtual ~Logistics() = default;
+  virtual ~Factory() = default;
 };
 
-//  RoadLogistics 和 SeaLogistics 是 Logistics 的子类，它们分别实现了
+//  RoadFactory 和 SeaFactory 是 Factory 的子类，它们分别实现了
 //  createTransport() 方法，决定实例化 Truck 和 Ship 对象。
 // 具体工厂：陆运
-class RoadLogistics : public Logistics {
+class RoadFactory : public Factory {
  public:
   virtual Transport* createTransport() override { return new Truck(); }
 };
 
 // 具体工厂：海运
-class SeaLogistics : public Logistics {
+class SeaFactory : public Factory {
  public:
   virtual Transport* createTransport() override { return new Ship(); }
 };
 
+
 int main() {
   // 创建一个具体工厂对象，调用 planDelivery() 方法
-  Logistics* roadLogistics = new RoadLogistics();
-  roadLogistics->planDelivery();  // Output: Delivering by land (Truck)
+  Factory* roadFactory = new RoadFactory();
+  roadFactory->planDelivery();  // Output: Delivering by land (Truck)
 
-  Logistics* seaLogistics = new SeaLogistics();
-  seaLogistics->planDelivery();  // Output: Delivering by sea (Ship)
+  Factory* seaFactory = new SeaFactory();
+  seaFactory->planDelivery();  // Output: Delivering by sea (Ship)
 
-  delete roadLogistics;
-  delete seaLogistics;
+  delete roadFactory;
+  delete seaFactory;
   return 0;
-}
+} 
 ```
 
 
@@ -1021,6 +1024,7 @@ public:
 **应用场景**：如状态机，应用于对象有多种状态，并且状态转换较复杂时。
 
 **实现**：
+
 ```cpp
 class State {
 public:
