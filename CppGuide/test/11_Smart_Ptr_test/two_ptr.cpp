@@ -2,6 +2,9 @@
 
 template <typename T>
 class UniquePtr {
+ private:
+  T* ptr_;
+
  public:
   explicit UniquePtr(T* ptr = nullptr) : ptr_(ptr) {}
 
@@ -56,9 +59,6 @@ class UniquePtr {
   }
 
   ~UniquePtr() { delete ptr_; }
-
- private:
-  T* ptr_;
 };
 
 template <typename T>

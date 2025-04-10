@@ -65,6 +65,7 @@ class String {
       // 申请 data_ 的内存空间与更新 capacity_
       ensure_capacity(other.len_);
       // 更新 data_ 的内容
+      // 深拷贝
       strcpy(data_, other.data_);
       // 更新 len_ 的长度
       len_ = other.len_;
@@ -72,14 +73,14 @@ class String {
     return *this;
   }
 
-  // 移动赋值运算符
+  // 移动赋值运算符，资源转移
   String& operator=(String&& other) noexcept {
     if (this != &other) {
-      // 释放原有对象的内存空间
+      // 释放原有对象的内存空间，释放当前资源
       delete[] data_;
-      // 获得 other 管理对象的使用权
+      // 获得 other 管理对象的使用权，接管 other 的资源
       data_ = other.data_, len_ = other.len_, capacity_ = other.capacity_;
-      // 将 other 对象置为空状态
+      // 将 other 对象置为空状态，制空原对象
       other.data_ = nullptr, other.len_ = 0, other.capacity_ = 0;
     }
     return *this;
