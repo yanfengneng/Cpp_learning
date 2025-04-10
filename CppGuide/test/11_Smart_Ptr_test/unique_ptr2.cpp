@@ -84,6 +84,10 @@ class Unique_Ptr {
 };
 
 // make_unique 函数
+// template <typename T, typename... Args>
+// Unique_Ptr<T> make_unique(Args&&... args) {
+//   return Unique_Ptr<T>(new T(std::forward<Args>(args)...));
+// }
 template <typename T, typename... Args>
 Unique_Ptr<T> make_unique(Args&&... args) {
   return Unique_Ptr<T>(new T(std::forward<Args>(args)...));

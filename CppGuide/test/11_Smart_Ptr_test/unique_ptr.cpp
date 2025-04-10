@@ -1,46 +1,52 @@
 #include <type_traits>  // for std::enable_if_t, std::is_convertible_v
 #include <utility>      // for std::swap, std::move
+#include <iostream>
 
+// 处理单一对象
 template <typename T>
-struct default_delete
-{
-  void operator()(T* p) const {
-    delete p;
-  }
+struct default_delete {
+  void operator()(T* p) const { delete p; }
 };
 
-template <typename T, typename Deleter = std::default_delete<T>>
-class unique_ptr {
- public:
-  // 默认构造
-  unique_ptr() noexcept : ptr(nullptr), deleter() {}
+// 数组特化：处理数组对象
+template <typename T>
+struct default_delete<T[]> {
+  void operator()(T* p) const noexcept { delete[] p; }
+};
 
-  // 接管裸指针
-  explicit unique_ptr(T* p) noexcept : ptr(p), deleter() {}
-  unique_ptr(T* p, Deleter d) noexcept : ptr(p), deleter(std::move(d)) {}
+template <typename T, typename Deleter = default_delete<T>>
+class Unique_Ptr {
+ private:
+  T* ptr_;
+  Deleter deleter;
+
+ public:
+  // 使用 explicit 防止隐式转换
+  explicit Unique_Ptr(T* p = nullptr, Deleter d = Deleter()) noexcept
+      : ptr_(p), deleter(std::move(d)) {}
 
   // 移动构造
-  unique_ptr(unique_ptr&& other) noexcept
-      : ptr(other.ptr), deleter(std::move(other.deleter)) {
-    other.ptr = nullptr;
+  Unique_Ptr(Unique_Ptr&& other) noexcept
+      : ptr_(other.ptr_), deleter(std::move(other.deleter)) {
+    other.ptr_ = nullptr;
   }
 
-  // 支持派生类到基类的转换
+  // 支持派生类到基类的转换，允许兼容的删除器
   template <typename U, typename E,
             typename = std::enable_if_t<std::is_convertible_v<U*, T*> &&
-                                        std::is_same_v<Deleter, E>>>
-  unique_ptr(unique_ptr<U, E>&& other) noexcept
-      : ptr(other.release()), deleter(std::move(other.get_deleter())) {}
+                                        std::is_constructible_v<Deleter, E&&>>>
+  Unique_Ptr(Unique_Ptr<U, E>&& other) noexcept
+      : ptr_(other.release()), deleter(std::move(other.get_deleter())) {}
 
   // 析构
-  ~unique_ptr() { reset(); }
+  ~Unique_Ptr() { reset(); }
 
   // 禁用拷贝
-  unique_ptr(const unique_ptr&) = delete;
-  unique_ptr& operator=(const unique_ptr&) = delete;
+  Unique_Ptr(const Unique_Ptr&) = delete;
+  Unique_Ptr& operator=(const Unique_Ptr&) = delete;
 
   // 移动赋值
-  unique_ptr& operator=(unique_ptr&& other) noexcept {
+  Unique_Ptr& operator=(Unique_Ptr&& other) noexcept {
     if (this != &other) {
       reset(other.release());
       deleter = std::move(other.deleter);
@@ -50,67 +56,62 @@ class unique_ptr {
 
   // 释放所有权
   T* release() noexcept {
-    T* p = ptr;
-    ptr = nullptr;
+    T* p = ptr_;
+    ptr_ = nullptr;
     return p;
   }
 
   // 重置指针
   void reset(T* p = nullptr) noexcept {
-    if (ptr != p) {
-      deleter(ptr);
-      ptr = p;
+    if (ptr_) {
+      deleter(ptr_);
     }
+    ptr_ = p;
   }
 
   // 访问原始指针
-  T* get() const noexcept { return ptr; }
+  T* get() const noexcept { return ptr_; }
 
   // 解引用操作符
-  T& operator*() const noexcept { return *ptr; }
-  T* operator->() const noexcept { return ptr; }
+  T& operator*() const noexcept { return *ptr_; }
+  T* operator->() const noexcept { return ptr_; }
 
   // 显式 bool 转换
-  explicit operator bool() const noexcept { return ptr != nullptr; }
+  explicit operator bool() const noexcept { return ptr_ != nullptr; }
 
   // 交换
-  void swap(unique_ptr& other) noexcept {
+  void swap(Unique_Ptr& other) noexcept {
     using std::swap;
-    swap(ptr, other.ptr);
+    swap(ptr_, other.ptr_);
     swap(deleter, other.deleter);
   }
 
   // 获取删除器
   Deleter& get_deleter() noexcept { return deleter; }
   const Deleter& get_deleter() const noexcept { return deleter; }
-
- private:
-  T* ptr;
-  Deleter deleter;
 };
 
 // 数组特化版本
 template <typename T, typename Deleter>
-class unique_ptr<T[], Deleter> {
+class Unique_Ptr<T[], Deleter> {
  public:
-  unique_ptr() noexcept : ptr(nullptr), deleter() {}
-  explicit unique_ptr(T* p) noexcept : ptr(p), deleter() {}
-  unique_ptr(T* p, Deleter d) noexcept : ptr(p), deleter(std::move(d)) {}
+  explicit Unique_Ptr(T* p = nullptr, Deleter d = Deleter()) noexcept
+      : ptr_(p), deleter(std::move(d)) {}
 
-  ~unique_ptr() { reset(); }
+  ~Unique_Ptr() { reset(); }
 
   // 移动构造
-  unique_ptr(unique_ptr&& other) noexcept
-      : ptr(other.ptr), deleter(std::move(other.deleter)) {
-    other.ptr = nullptr;
+  Unique_Ptr(Unique_Ptr&& other) noexcept
+      : ptr_(other.ptr_), deleter(std::move(other.deleter)) {
+    other.ptr_ = nullptr;
   }
 
   // 禁用拷贝
-  unique_ptr(const unique_ptr&) = delete;
-  unique_ptr& operator=(const unique_ptr&) = delete;
+  Unique_Ptr(const Unique_Ptr&) = delete;
+  Unique_Ptr& operator=(const Unique_Ptr&) = delete;
 
   // 移动赋值
-  unique_ptr& operator=(unique_ptr&& other) noexcept {
+  Unique_Ptr& operator=(Unique_Ptr&& other) noexcept {
     if (this != &other) {
       reset(other.release());
       deleter = std::move(other.deleter);
@@ -120,62 +121,81 @@ class unique_ptr<T[], Deleter> {
 
   // 释放所有权
   T* release() noexcept {
-    T* p = ptr;
-    ptr = nullptr;
+    T* p = ptr_;
+    ptr_ = nullptr;
     return p;
   }
 
   // 重置指针
   void reset(T* p = nullptr) noexcept {
-    if (ptr != p) {
-      deleter(ptr);
-      ptr = p;
+    if (ptr_) {
+      deleter(ptr_);
     }
+    ptr_ = p;
   }
 
   // 数组下标访问
-  T& operator[](size_t idx) const { return ptr[idx]; }
+  T& operator[](size_t idx) const { return ptr_[idx]; }
 
   // 其他接口与主模板一致
-  T* get() const noexcept { return ptr; }
-  explicit operator bool() const noexcept { return ptr != nullptr; }
-  void swap(unique_ptr& other) noexcept {
+  T* get() const noexcept { return ptr_; }
+  explicit operator bool() const noexcept { return ptr_ != nullptr; }
+  void swap(Unique_Ptr& other) noexcept {
     using std::swap;
-    swap(ptr, other.ptr);
+    swap(ptr_, other.ptr_);
     swap(deleter, other.deleter);
   }
   Deleter& get_deleter() noexcept { return deleter; }
   const Deleter& get_deleter() const noexcept { return deleter; }
 
  private:
-  T* ptr;
+  T* ptr_;
   Deleter deleter;
 };
 
 // 工厂函数
+// template <typename T, typename... Args>
+// Unique_Ptr<T> make_unique(Args&&... args) {
+//   return Unique_Ptr<T>(new T(std::forward<Args>(args)...));
+// }
 template <typename T, typename... Args>
-unique_ptr<T> make_unique(Args&&... args) {
-  return unique_ptr<T>(new T(std::forward<Args>(args)...));
+std::enable_if_t<!std::is_array_v<T>, Unique_Ptr<T>> // SFINAE 约束
+make_unique(Args&&... args) {
+  return Unique_Ptr<T>(new T(std::forward<Args>(args)...));
 }
-
-// 数组版本工厂
+// // 数组版本工厂
+// template <typename T>
+// Unique_Ptr<T[]> make_unique(size_t size) {
+//   return Unique_Ptr<T[]>(new T[size]);
+// }
 template <typename T>
-unique_ptr<T[]> make_unique(size_t size) {
-  return unique_ptr<T[]>(new T[size]);
+typename std::enable_if_t<std::is_array_v<T> && (std::extent_v<T> == 0), Unique_Ptr<T>>
+make_unique(size_t size) {
+  using element_type = std::remove_extent_t<T>;
+  return Unique_Ptr<T>(new element_type[size]);
 }
 
-// 删除器示例
-class Deletor {
- public:
-  template <typename U>
-  void operator()(U* p) noexcept {
-    if (p) {
-      delete p;
-    }
-  }
-};
+int main() {
+  // 管理单个对象
+  Unique_Ptr<int> p1 = make_unique<int>(42);
+  std::cout << *p1 << std::endl;  // 42
 
-int main()
-{
+  // 管理数组
+  Unique_Ptr<int[]> arr = make_unique<int[]>(5);
+  arr[0] = 10;
+  std::cout << arr[0] << std::endl;
+
+  // 自定义删除器
+  struct FileDeleter {
+    void operator()(FILE* f) noexcept {
+      if (f) {
+        fclose(f);
+        std::cout << "File closed.\n";
+      }
+    }
+  };
+
+  FILE* fp = fopen("test.txt", "w");
+  Unique_Ptr<FILE, FileDeleter> file(fp, FileDeleter());
   return 0;
 }
