@@ -30,7 +30,7 @@ void hashCombine(size_t& seed, const T& arg)  // 真正的hash在这里完成
 }
 
 template <typename T>
-void hashValue(size_t& seed, const T& arg)  // ③递归出口
+void hashValue(size_t& seed, const T& arg)  // 递归出口
 {
   hashCombine(seed, arg);
 }
@@ -38,7 +38,7 @@ void hashValue(size_t& seed, const T& arg)  // ③递归出口
 template <typename T1, typename... T2>
 void hashValue(
     size_t& seed, const T1& arg,
-    const T2&... args)  // ②在这里通过递归逐步拿到所有参数,当args...的大小为1时跳出该递归，接着进入③
+    const T2&... args)  // 在这里通过递归逐步拿到所有参数,当args...的大小为1时跳出该递归，接着进入③
 {
   hashCombine(seed, arg);
   hashValue(seed, args...);  // 递归
@@ -46,7 +46,7 @@ void hashValue(
 
 // T为模板参数包，可以代表任意多个类型；args为函数参数包，可以代表任意多个函数参数
 template <typename... T>
-size_t hashValue(const T&... args)  // ①在这里完成参数的第一次拆分，接着进入②
+size_t hashValue(const T&... args)  // 在这里完成参数的第一次拆分，接着进入②
 {
   size_t seed = 0;           // 种子，以引用方式传递
   hashValue(seed, args...);  // args...中为T类型对象中的所有用于hash的数据成员
