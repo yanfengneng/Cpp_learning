@@ -33,7 +33,7 @@ int main() {
   return 0; 
 }
 
-Single &Single::GetInstance() {
+Single& Single::GetInstance() {
   /**
    * 局部静态特性的方式实现单实例。
    * 静态局部变量只在当前函数内有效，其他函数无法访问。

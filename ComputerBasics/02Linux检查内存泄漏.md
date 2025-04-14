@@ -2,9 +2,9 @@
 
 **内存泄漏：**
 
-* **定义**：内存泄漏是指程序在运行过程中分配的内存没有被正确释放，导致这部分内存无法再次使用，从而造成内存资源的浪费。
+* **定义**：内存泄漏是<font color=alice>指程序在运行过程中分配的内存没有被正确释放，导致这部分内存无法再次使用，从而造成内存资源的浪费</font>。
 * **后果**：内存泄漏可能会导致系统性能下降、程序崩溃或者消耗过的系统资源。
-* 内存泄漏通常发生在动态分配的堆内存上，当程序通过调用 malloc、new 等函数来申请内存空间时，在使用完成之后应该使用 free、delete 等函数来释放这些已经不需要的内存空间。如果忘记释放这些内存空间，就会造成内存泄漏。
+* 内存泄漏通常发生在动态分配的堆内存上，当程序通过调用 malloc、new 等函数来申请内存空间时，在使用完成之后应该使用 free、delete 等函数来释放这些已经不需要的内存空间。**如果忘记释放这些内存空间，就会造成内存泄漏**。
 * **常见的内存泄漏的原因**：指针或引用未被正确清理、循环引用、缓冲区溢出等。
 * 可以利用工具进行**静态代码分析或者动态检测**来帮助定位和修复内存泄漏问题。
 
@@ -29,3 +29,109 @@
 <font color=alice>内存泄漏并非指内存在物理上的消失，而是应用程序分配某段内存后，由于使用错误，导致在释放该段内存之前就失去了对该段内存的控制，从而造成了内存未释放而浪费掉。</font>
 
 一般情况下，作为开发人员会经常使用系统提供的内存管理基本函数，**如 `malloc`、`realloc`、`calloc`、`free` 等，完成动态存储变量存储空间的分配和释放**。但是，当开发程序中使用动态存储变量较多和频繁使用函数调用时，就会经常发生内存管理错误。
+
+****
+
+# 内存泄漏的典型案例
+
+1、**裸指针未释放**
+
+```cpp
+void processData() {
+    int* data = new int[1024]; 
+    // ...业务逻辑
+    // 忘记写 delete[] data;
+}
+```
+
+现象：**长时间运行后进程内存持续增长**。
+
+解决方法：可以使用 `Valgrind` 的 `memcheck` 模块进行检测，会报告 `definitely lost` 的错误。
+
+使用命令 `valgrind --leak-check=full ./program` 来定位内存泄漏位置，`Valgrind` 是 Linux 环境下的黄金工具。
+
+***
+
+2、**异常路径未释放**
+
+```cpp
+void loadResource() {
+    Resource* res = new Resource();
+    if(!res->init()) {
+        throw std::runtime_error("初始化失败"); 
+        // 异常抛出导致delete未执行
+    }
+    delete res;
+}
+```
+
+现象：错误发生时出现间歇性内存泄漏。
+
+调试方法：在构造函数中添加日志，发现异常抛出时析构函数未被调用。
+
+***
+
+3、**智能指针中的循环引用**
+
+```cpp
+class Node {
+    std::shared_ptr<Node> next;
+    std::shared_ptr<Node> prev;
+};
+// 创建循环引用后引用计数永不归零
+```
+
+现象：对象预期声明周期结束后仍未释放。
+
+检测工具：可以使用 VS 中的内存快照对比功能。
+
+***
+
+## 现代 C++ 解决方案
+
+```cpp
+// 替代裸指针
+std::unique_ptr<Data> data = std::make_unique<Data>();
+
+// 容器自动管理
+std::vector<Data> dataset;
+dataset.reserve(1000);
+
+// 打破循环引用
+class WeakNode {
+    std::weak_ptr<WeakNode> next; 
+    // 使用weak_ptr避免循环计数
+};
+
+// RALL 设计模式
+class FileHandler {
+    FILE* fp;
+public:
+    explicit FileHandler(const char* path) : fp(fopen(path, "r")) {}
+    ~FileHandler() { if(fp) fclose(fp); }
+    // 禁用拷贝构造/赋值
+};
+```
+
+## 深度防御策略
+
+1、**使用智能指针**
+
+- 默认使用`unique_ptr`表达独占所有权
+- `shared_ptr`仅用于明确需要共享的场景
+- 禁止跨模块传递裸指针
+
+2、**使用静态分析工具链**
+
+* 使用 `Clang Static Analyzer` 对**路径敏感的数据流**进行分析。
+* 使用 `Cppcheck` 对**规则驱动的漏洞**进行检测。
+
+
+
+**智能指针性能**：经测试，`std::shared_ptr`的控制块在栈上分配时，其性能开销在绝大多数场景可忽略不计。
+
+**内存泄漏分类**：
+
+- **未释放泄漏**（Forgotten Leaks）：编码疏忽导致。
+- **隐式泄漏**（Hidden Leaks）：资源未及时回收（如未关闭文件描述符）。
+- **逻辑泄漏**（Logical Leaks）：对象持有时间超出必要周期。

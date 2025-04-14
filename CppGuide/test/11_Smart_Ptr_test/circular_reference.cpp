@@ -25,7 +25,7 @@ int main() {
     a->b_ptr = b;
     b->a_ptr = a;
     // 此时 a 和 b 相互引用，a 持有 b 的 shared_ptr，b 持有 a 的 weak_ptr
-    std::cout << a.use_count() << " " << b.use_count() << std::endl;
+    std::cout << a.use_count() << " " << b.use_count() << std::endl; // 输出：1 2
   }
 
   // 此处 a 和 b 应该被销毁，但由于循环引用，析构函数不会被调用
